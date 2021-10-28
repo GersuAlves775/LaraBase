@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Services\{{SERVICE_NAME}}Service;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class {{SERVICE_NAME}}Controller extends Controller
+{
+    private {{SERVICE_NAME}}Service $service;
+
+    public function __construct({{SERVICE_NAME}}Service $service)
+    {
+        $this->service = $service;
+    }
+
+    public function index(): JsonResponse
+    {
+        return response()->json($this->service->get());
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        return response()->json($this->service->get($id));
+    }
+
+    public function update(int $id, Request $request): JsonResponse
+    {
+        return response()->json($this->service->store($request));
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        return response()->json($this->service->store($request));
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        return response()->json($this->service->destroy($id));
+
+    }
+
+}
