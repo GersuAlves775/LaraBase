@@ -3,7 +3,7 @@
 namespace gersonalves\laravelBase\Service;
 use Illuminate\Http\Request;
 
-abstract class BaseService implements baseServiceInterface
+abstract class BaseService implements BaseServiceInterface
 {
 
     public $repository;
