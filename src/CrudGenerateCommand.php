@@ -9,9 +9,9 @@ class CrudGenerateCommand extends Command
     protected $signature = 'gersonalves:resource';
     protected $description = 'Gera uma Resource seguind o padrão do BaseLaravel por Gerson Alves.';
 
-    private mixed $serviceName;
+    private string $serviceName;
     private bool $makeRepo = false;
-    private mixed $modelName;
+    private string $modelName;
     private bool $makeController;
 
     /**
