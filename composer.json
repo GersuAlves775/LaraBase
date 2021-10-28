@@ -1,0 +1,23 @@
+{
+    "name": "gerson/laravel-base",
+    "description": "Pacote com facilitadores para utilização do laravel",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gerson Alves",
+            "email": "gersonalvesdev@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "gersonalves\\laravelBase\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    }
+}
