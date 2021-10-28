@@ -11,8 +11,8 @@ use Illuminate\Http\Request;
 
 abstract class BaseRepository implements BaseRepositoryInterface
 {
-    private  $model;
-    private  $request;
+    private $model;
+    private $request;
 
     public function __construct(Model $model)
     {
@@ -30,7 +30,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     public function withRelations(): baseRepository
     {
-        $this->model = $this->model->withRelations();
+        if (method_exists(get_class($this->model), 'scopeWithRelations'))
+            $this->model = $this->model->withRelations();
         return $this;
     }
 
@@ -68,7 +69,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
                         return $itensToUpdate[$item];
                     })->toArray()))
             ->map(function ($item, $key) use ($data) {
-                if (!$data->get('cep')){
+                if (!$data->get('cep')) {
                     dump($data->get($key));
                     dump($key);
                 }
