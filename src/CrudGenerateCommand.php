@@ -9,10 +9,10 @@ class CrudGenerateCommand extends Command
     protected $signature = 'gersonalves:resource';
     protected $description = 'Gera uma Resource seguind o padrão do BaseLaravel por Gerson Alves.';
 
-    private  $serviceName;
-    private  $makeRepo = false;
-    private  $modelName;
-    private  $makeController;
+    private $serviceName;
+    private $makeRepo = false;
+    private $modelName;
+    private $makeController;
 
     /**
      * Create a new command instance.
@@ -32,7 +32,6 @@ class CrudGenerateCommand extends Command
     public function handle()
     {
         $this->makeQuestions();
-        return Command::SUCCESS;
     }
 
     private function makeQuestions()
@@ -45,7 +44,7 @@ class CrudGenerateCommand extends Command
         $this->QuestionCreateController();
 
         $this->makeFiles();
-        $this->info('Arquivos criados com sucesso!');
+        $this->alert('Arquivos criados com sucesso!');
     }
 
     private function getFileName()
@@ -97,10 +96,10 @@ class CrudGenerateCommand extends Command
     {
         $fileName = $this->serviceName . 'Service';
 
-        $content = file_get_contents( './stubs/Service.stub');
+        $content = file_get_contents(storage_path() . '/stubs/Service.stub');
         $content = str_replace('{{SERVICE_NAME}}', $this->serviceName, $content);
 
-        $fp = fopen( '/app/Services/' . $fileName . '.php', 'w');
+        $fp = fopen(base_path() . '/app/Services/' . $fileName . '.php', 'w');
         fwrite($fp, $content);
         fclose($fp);
     }
@@ -109,8 +108,13 @@ class CrudGenerateCommand extends Command
     {
         $fileName = $this->serviceName . 'Repository';
 
-        $content = file_get_contents('./stubs/Repository.stub');
+        $content = file_get_contents(storage_path() . '/stubs/Repository.stub');
         $content = str_replace('{{MODEL_NAME}}', $this->modelName, $content);
+        if (floatval(app()->version()) > 7.0) {
+            $content = str_replace('{{MODEL_DIR}}', '\Models', $content);
+        } else {
+            $content = str_replace('{{MODEL_DIR}}', '', $content);
+        }
 
         $fp = fopen(base_path() . '/app/Repositories/' . $fileName . '.php', 'w');
         fwrite($fp, $content);
@@ -128,8 +132,14 @@ class CrudGenerateCommand extends Command
     {
         $fileName = $this->serviceName . 'Controller';
 
-        $content = file_get_contents('./stubs/Controller.stub');
+        $content = file_get_contents(storage_path() . '/stubs/Controller.stub');
         $content = str_replace('{{SERVICE_NAME}}', $this->serviceName, $content);
+        if (floatval(app()->version()) >= 7.0) {
+            $content = str_replace('{{SERVICE_TYP}}', $this->serviceName . 'Service', $content);
+        } else {
+            $content = str_replace('{{SERVICE_TYP}}', '', $content);
+
+        }
 
         $fp = fopen(base_path() . '/app/Http/Controllers/' . $fileName . '.php', 'w');
         fwrite($fp, $content);
