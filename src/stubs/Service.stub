@@ -2,9 +2,9 @@
 namespace App\Services;
 
 use App\Repositories\{{SERVICE_NAME}}Repository;
-use App\Utilities\baseService;
+use gersonalves\laravelBase\Service\BaseService;
 
-class {{SERVICE_NAME}}Service extends baseService
+class {{SERVICE_NAME}}Service extends BaseService
 {
     public function __construct()
     {

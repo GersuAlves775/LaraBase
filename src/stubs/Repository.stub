@@ -1,10 +1,10 @@
 <?php
 namespace App\Repositories;
 
-use App\Models\{{MODEL_NAME}};
-use App\Utilities\baseRepository;
+use App{{MODEL_DIR}}\{{MODEL_NAME}};
+use gersonalves\laravelBase\Service\BaseService;
 
-class {{MODEL_NAME}}Repository extends baseRepository
+class {{MODEL_NAME}}Repository extends BaseRepository
 {
     public function __construct()
     {

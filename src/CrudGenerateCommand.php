@@ -110,7 +110,7 @@ class CrudGenerateCommand extends Command
 
         $content = file_get_contents(__DIR__ . '/stubs/Repository.stub');
         $content = str_replace('{{MODEL_NAME}}', $this->modelName, $content);
-        if (floatval(app()->version()) > 7.0) {
+        if (floatval(phpversion()) > 7.4) {
             $content = str_replace('{{MODEL_DIR}}', '\Models', $content);
         } else {
             $content = str_replace('{{MODEL_DIR}}', '', $content);
@@ -134,11 +134,10 @@ class CrudGenerateCommand extends Command
 
         $content = file_get_contents(__DIR__ . '/stubs/Controller.stub');
         $content = str_replace('{{SERVICE_NAME}}', $this->serviceName, $content);
-        if (floatval(app()->version()) >= 7.0) {
+        if (floatval(phpversion()) >= 7.4) {
             $content = str_replace('{{SERVICE_TYP}}', $this->serviceName . 'Service', $content);
         } else {
             $content = str_replace('{{SERVICE_TYP}}', '', $content);
-
         }
 
         $fp = fopen(base_path() . '/app/Http/Controllers/' . $fileName . '.php', 'w');
