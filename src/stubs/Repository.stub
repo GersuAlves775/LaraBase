@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App{{MODEL_DIR}}\{{MODEL_NAME}};
-use gersonalves\laravelBase\Service\BaseService;
+use gersonalves\laravelBase\Repository\BaseRepository;
 
 class {{MODEL_NAME}}Repository extends BaseRepository
 {
