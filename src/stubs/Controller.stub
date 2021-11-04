@@ -7,7 +7,7 @@ use App\Services\{{SERVICE_NAME}}Service;
 
 class {{SERVICE_NAME}}Controller extends Controller
 {
-    private {{SERVICE_NAME}}Service $service;
+    public {{SERVICE_NAME}}Service $service;
 
     public function __construct({{SERVICE_NAME}}Service $service)
     {
