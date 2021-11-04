@@ -1,4 +1,5 @@
 <?php
+
 namespace gersonalves\laravelBase\Traits;
 
 use Illuminate\Http\JsonResponse;
@@ -28,11 +29,13 @@ trait ControllerTrait
 
     public function update(int $id, Request $request): JsonResponse
     {
+        $request->validate($this->validators);
         return response()->json($this->service->update($request));
     }
 
     public function store(Request $request): JsonResponse
     {
+        $request->validate($this->validators);
         return response()->json($this->service->store($request));
     }
 
