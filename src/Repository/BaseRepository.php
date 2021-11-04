@@ -40,6 +40,11 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model;
     }
 
+    public function update(Request $data): array
+    {
+        return $this->store($data);
+    }
+
     public function store(Request $data)
     {
         if ($data->get($this->getModel()->getKeyName())) {

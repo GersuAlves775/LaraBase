@@ -27,7 +27,7 @@ class {{SERVICE_NAME}}Controller extends Controller
 
     public function update(int $id, Request $request): JsonResponse
     {
-        return response()->json($this->service->store($request));
+        return response()->json($this->service->update($request));
     }
 
     public function store(Request $request): JsonResponse

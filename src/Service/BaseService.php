@@ -1,6 +1,7 @@
 <?php
 
 namespace gersonalves\laravelBase\Service;
+
 use Illuminate\Http\Request;
 
 abstract class BaseService implements BaseServiceInterface
@@ -40,7 +41,12 @@ abstract class BaseService implements BaseServiceInterface
         return $this->repository->store($data);
     }
 
-     private function destroy(int $id)
+    private function update(Request $data)
+    {
+        return $this->repository->update($data);
+    }
+
+    private function destroy(int $id)
     {
         return $this->repository->destroy($id);
     }
