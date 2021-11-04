@@ -50,4 +50,12 @@ abstract class BaseService implements BaseServiceInterface
     {
         return $this->repository->destroy($id);
     }
+
+    public function mergeRequest(Request $request, array $array): Request
+    {
+        $request->request->add($array);
+        $request->merge($array);
+
+        return $request;
+    }
 }
