@@ -1,8 +1,9 @@
 <?php
+namespace gersonalves\laravelBase\Traits;
+
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-namespace gersonalves\laravelBase\Traits;
 
 trait ControllerTrait
 {

@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 class CrudGenerateCommand extends Command
 {
-    protected $signature = 'labase:resource';
+    protected $signature = 'larabase:resource';
     protected $description = 'Gera uma Resource seguindo padrão do BaseLaravel por Gerson Alves.';
 
     private $serviceName;

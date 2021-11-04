@@ -36,7 +36,7 @@ A utilização é bem simples, você poderá gerar suas resources com um simples
 O unico requisito é que já tenha gerado sua <strong>MODEL</strong>.
 
 Basta executar o comando
-```php artisan labase:resource```
+```php artisan larabase:resource```
 e responder as perguntas.
 Sugestão: Utilize o nome da Model na primeira pergunta (Que irá perguntar qual o nome do service).
 Caso diga sim para todos os itens, ao final você terá
