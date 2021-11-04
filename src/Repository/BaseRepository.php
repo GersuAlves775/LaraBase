@@ -69,10 +69,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
                         return $itensToUpdate[$item];
                     })->toArray()))
             ->map(function ($item, $key) use ($data) {
-                if (!$data->get('cep')) {
-                    dump($data->get($key));
-                    dump($key);
-                }
                 return $data->get($key);
             })->toArray();
     }
@@ -84,6 +80,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     public function destroy(int $id)
     {
-        $this->getModel()->firstOrFail($id)->delete();
+        $this->getModel()->destroy($id);
     }
 }

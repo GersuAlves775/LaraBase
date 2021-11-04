@@ -40,7 +40,7 @@ abstract class BaseService implements BaseServiceInterface
         return $this->repository->store($data);
     }
 
-     public function destroy(int $id)
+     private function destroy(int $id)
     {
         return $this->repository->destroy($id);
     }
