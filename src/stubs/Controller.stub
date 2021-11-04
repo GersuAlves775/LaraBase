@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
@@ -8,6 +9,7 @@ use App\Services\{{SERVICE_NAME}}Service;
 class {{SERVICE_NAME}}Controller extends Controller
 {
     public {{SERVICE_NAME}}Service $service;
+    protected $validators = [];
 
     public function __construct({{SERVICE_NAME}}Service $service)
     {
