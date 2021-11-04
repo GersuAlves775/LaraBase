@@ -16,6 +16,21 @@ ao final do array, basta adicionar
 Em seu projeto, dentro de App crie dois diretórios.
 <strong>Services</strong> e <strong>Repositories</strong>
 
+No arquivo "Controller.php" dentro de app/Http/Controllers
+Substituia
+
+```    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;```
+
+por
+
+```use AuthorizesRequests, DispatchesJobs, ValidatesRequests, ControllerTrait;```
+
+E adicione no cabeçalho do arquivo.
+
+```
+use gersonalves\laravelBase\Traits\ControllerTrait;
+```
+
 # Como utilizar
 A utilização é bem simples, você poderá gerar suas resources com um simples comando.
 O unico requisito é que já tenha gerado sua <strong>MODEL</strong>.
