@@ -8,9 +8,11 @@ class BaseLaravelServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        if($this->app->runningInConsole()){
+        require_once(__DIR__ . '/Helpers/Utility.php');
+
+        if ($this->app->runningInConsole()) {
             $this->commands([
-               CrudGenerateCommand::class
+                CrudGenerateCommand::class
             ]);
         }
     }

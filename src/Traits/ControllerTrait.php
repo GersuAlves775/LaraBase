@@ -11,6 +11,9 @@ trait ControllerTrait
     public function index(): JsonResponse
     {
         try {
+            if (request()->limit)
+                return response()->json($this->service->paginate());
+
             return response()->json($this->service->get());
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);

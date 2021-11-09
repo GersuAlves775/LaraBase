@@ -58,4 +58,12 @@ abstract class BaseService implements BaseServiceInterface
 
         return $request;
     }
+
+    public function paginate()
+    {
+        return $this->repository
+            ->withRelations()
+            ->get()
+            ->paginate(request()->request->get('limit') ?? 10, request()->request->get('page') ?? 1);
+    }
 }
