@@ -16,7 +16,9 @@ abstract class BaseService implements BaseServiceInterface
     public function __construct($repository)
     {
         $this->repository = $repository;
-        $this->applyExcept();
+        if(is_array($this->excepts) && count($this->excepts))
+            $this->applyExcept();
+        if(is_array($this->casts) && count($this->casts))
         $this->applyCasts();
     }
 
