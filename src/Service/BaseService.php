@@ -9,9 +9,14 @@ abstract class BaseService implements BaseServiceInterface
 
     public $repository;
 
+    public array $excepts;
+    public array $casts;
+
     public function __construct($repository)
     {
         $this->repository = $repository;
+        $this->applyExcept();
+        $this->applyCasts();
     }
 
     public function __call($name, $arguments)
@@ -65,5 +70,26 @@ abstract class BaseService implements BaseServiceInterface
             ->withRelations()
             ->get()
             ->paginate(request()->request->get('limit') ?? 10, request()->request->get('page') ?? 1);
+    }
+
+    public function applyExcept()
+    {
+        foreach ($this->excepts as $index => $except) {
+            request()->request->remove($except);
+        }
+    }
+
+    public function applyCasts()
+    {
+        foreach ($this->casts as $index => $cast) {
+            $data = request()->get($index);
+            switch ($cast) {
+                case 'date':
+                case 'datetime':
+                    $this->mergeRequest(request(), [$index => Carbon::parse($data)]);
+                    break;
+
+            }
+        }
     }
 }
