@@ -3,6 +3,7 @@
 namespace gersonalves\laravelBase\Service;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 abstract class BaseService implements BaseServiceInterface
 {
