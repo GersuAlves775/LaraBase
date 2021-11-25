@@ -16,10 +16,10 @@ abstract class BaseService implements BaseServiceInterface
     public function __construct($repository)
     {
         $this->repository = $repository;
-        if(is_array($this->excepts) && count($this->excepts))
+        if (is_array($this->excepts) && count($this->excepts))
             $this->applyExcept();
-        if(is_array($this->casts) && count($this->casts))
-        $this->applyCasts();
+        if (is_array($this->casts) && count($this->casts))
+            $this->applyCasts();
     }
 
     public function __call($name, $arguments)
@@ -86,13 +86,17 @@ abstract class BaseService implements BaseServiceInterface
     {
         foreach ($this->casts as $index => $cast) {
             $data = request()->get($index);
+            $newValue = null;
             switch ($cast) {
                 case 'date':
                 case 'datetime':
-                    $this->mergeRequest(request(), [$index => Carbon::parse($data)]);
+                    $newValue = Carbon::parse($data);
                     break;
-
+                case 'price':
+                    $newValue = $data * 100;
+                    break;
             }
+            $this->mergeRequest(request(), [$index => $newValue]);
         }
     }
 }
