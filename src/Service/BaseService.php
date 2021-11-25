@@ -10,8 +10,8 @@ abstract class BaseService implements BaseServiceInterface
 
     public $repository;
 
-    public array $excepts;
-    public array $casts;
+    public ?array $excepts;
+    public ?array $casts;
 
     public function __construct($repository)
     {
