@@ -92,7 +92,7 @@ abstract class BaseService implements BaseServiceInterface
                 case 'datetime':
                     $newValue = Carbon::parse($data);
                     break;
-                case 'price':
+                case 'money':
                     $newValue = $data * 100;
                     break;
             }
