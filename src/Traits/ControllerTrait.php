@@ -32,7 +32,15 @@ trait ControllerTrait
 
     public function update(int $id, Request $request): JsonResponse
     {
-        $request->validate($this->validators);
+        $validators = $this->validators ?? [];
+        $exclude = $this->excludeOnUpdate ?? [];
+        if(count($exclude)){
+            $validators = array_filter($validators, function ($k) use ($exclude) {
+                return !(in_array($k, $exclude));
+            }, ARRAY_FILTER_USE_KEY);
+        }
+
+        $request->validate($validators);
         return response()->json($this->service->update($request));
     }
 
