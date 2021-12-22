@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 
 trait ControllerTrait
 {
+    protected array $validators = [];
+    protected array $excludeOnUpdate = [];
+    protected array $replaceOnUpdate = [];
+
     public function index(): JsonResponse
     {
         try {
@@ -26,21 +30,29 @@ trait ControllerTrait
             return response()->json($this->service->get($id));
 
         } catch (\Exception $e) {
-            return response()->json($e->getMessage(), 404);
+            return response()->json($this->getErrorString($e, "Registro não encontrado."), 404);
         }
     }
 
     public function update(int $id, Request $request): JsonResponse
     {
-        $validators = $this->validators ?? [];
-        $exclude = $this->excludeOnUpdate ?? [];
-        if(count($exclude)){
-            $validators = array_filter($validators, function ($k) use ($exclude) {
-                return !(in_array($k, $exclude));
+        $excludes = $this->excludeOnUpdate;
+        $replaces = $this->replaceOnUpdate;
+
+        if (count($this->excludeOnUpdate)) {
+            $this->validators = array_filter($this->validators, function ($k) use ($excludes) {
+                return !(in_array($k, $excludes));
             }, ARRAY_FILTER_USE_KEY);
         }
 
-        $request->validate($validators);
+        if (count($this->replaceOnUpdate)) {
+            $this->validators = collect($this->validators)->map(function ($rule, $key) use ($replaces) {
+                return $replaces[$key] ?? $rule;
+            })->toArray();
+        }
+
+        $request->validate($this->validators);
+
         return response()->json($this->service->update($request));
     }
 
@@ -55,11 +67,11 @@ trait ControllerTrait
         try {
             return response()->json($this->service->destroy($id));
         } catch (\Exception $e) {
-            return response()->json($e->getMessage(), 404);
+            return response()->json($this->getErrorString($e, "Registro não encontrado."), 404);
         }
     }
 
-    public function getErrorString(Exception $e, string $customMessage = "Server error"): string
+    public function getErrorString($e, string $customMessage = "Server error"): string
     {
         return env("APP_DEBUG") ? $e->getMessage() : $customMessage;
     }
