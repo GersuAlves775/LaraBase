@@ -23,9 +23,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function get(int $id = null)
     {
         if ($id)
-            return $this->model->find($id);
+            return $this->model = $this->model->find($id);
 
-        return $this->model->get();
+        return $this->model = $this->model->get();
     }
 
     public function withRelations(): baseRepository
@@ -42,7 +42,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     public function update(Request $data): array
     {
-        return $this->store($data);
+        return $this->model = $this->store($data);
     }
 
     public function store(Request $data)
@@ -53,13 +53,12 @@ abstract class BaseRepository implements BaseRepositoryInterface
                 $this->getStoreContent($data)
             );
         } else {
-
-            return $this->model->create(
+            return $this->model = $this->model->create(
                 $this->getStoreContent($data)
             )->toArray();
         }
 
-        return $this->getStoreContent($data);
+        return $this->model = $this->getStoreContent($data);
     }
 
     private function getStoreContent(Request $data)

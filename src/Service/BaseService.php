@@ -33,7 +33,7 @@ abstract class BaseService implements BaseServiceInterface
 
     public function __get(string $name)
     {
-        return $this->repository->$name;
+        return $this->repository->getModel()->$name;
     }
 
     private function get(int $id = null)
