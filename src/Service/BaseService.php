@@ -13,7 +13,7 @@ abstract class BaseService implements BaseServiceInterface
     public ?array $excepts = [];
     public ?array $casts = [];
 
-    public function __construct($repository)
+    public function __construct($repository = null)
     {
         $this->repository = $repository;
         if (is_array($this->excepts) && count($this->excepts))
