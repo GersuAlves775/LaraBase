@@ -1,3 +1,6 @@
+# Requisitos
+```PHP ^8.1```
+
 # laravelBase
 Base for laravel fast development.
 
@@ -58,10 +61,44 @@ Caso diga sim para todos os itens, ao final você terá
   
   Assim ela será aplicado para o metodo INDEX e SHOW.
   
-  Já para persistencia (Store e Update) ele irá persistir caso os indices que vem da requisição sejam iguais ao nome das colunas no banco de dados. 
+Já para persistencia (Store e Update) ele irá persistir caso os indices que vem da requisição sejam iguais ao nome das colunas no banco de dados. 
 Obs: o seu Fillable precisa estar com essas colunas, é de lá que ele irá extrair.
-Além disso, você pode sobrescrever o metodo store e update em seu Service. assim aplicando suas regras especificas, veja outro exemplo:
+Além disso, você pode sobrescrever o metodo store e update em seu Service. assim aplicando suas regras especificas.
 
+# Alguns recursos
+
+Em sua controller, voce pode configurar a validacao da seguinte forma:
+
+# #1 - Controllers
+```php 
+  protected array $validators = [
+        'email' => 'required|unique:users,email',
+        'password' => 'required|min:8|string',
+        'cpf' => 'required|cpf|formato_cpf',
+    ];
+```
+Assim, qualquer requisicao de store ou update ira aplicar essas regras. Mas ai, temos um problema. 
+Por informar que o e-mail deve ser unico, o update ira quebrar falando que o e-mail ja existe, ja que a validacao eh aplicada antes,
+para resolver isso, tempos duas opcoes, a primeira eh sobrescrever a regra do e-mail para quando for um update, da seguinte maneira:
+
+
+```php 
+  protected array $replaceOnUpdate = [
+        'email' => 'required'
+    ];
+```
+Dessa forma, ele ira fazer um merge entre os dois arrays, quando update e o e-mail continuara requerido, porem, sem a validacao de unico. 
+Alem disso, ele ira manter as demais regras, para cpf e password, caso eu queira remove-los, posso fazer da seguinte forma:
+
+```php 
+  protected array $excludeOnUpdate = ['cpf', 'password'];
+```
+
+Dessa forma, usando os 3, o resultado sera, aplicara apenas o $validators ao criar um novo registro e ao atualizar, apenas ira obrigar a preencher o E-mail.
+
+
+# #2 - Services
+Em nossa versao anterior, precisavamos fazer assim para salver algo em multi nivel:
 ```php 
   public function store(Request $request)
     {
@@ -73,4 +110,37 @@ Além disso, você pode sobrescrever o metodo store e update em seu Service. ass
     }
 ```
 
-Dessa forma, na mesma requisição eu consigo persistir um evento e também o seu endereço, escrevendo poucas linhas de código. 
+Com a nova versao, nao precisamos mais disso, veja o exemplo:
+```php 
+ protected ?array $recursiveStore = [
+        EventAddressRepository::class => PersistEnum::BEFORE_PERSIST
+    ];
+```
+Eu preciso apenas informar o Repository que vira como "filho" do objeto e em qual momento deve ser persistido, antes ou depois do principal.
+
+# #3 - Repository
+Caso eu precise armazenar uma imagem, considerando que irei recebe-la em base64 via requisicao JSON, no seguinte exemplo:
+```json 
+  {
+    "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII="
+  }
+
+```
+
+Eu posso configurar em meu repository o seguinte:
+```php 
+  protected ?array $storeFile = [
+        'logo' => [
+            'type' => fileEnum::BASE64_IMAGE,
+            'path' => 'public/'
+        ]
+    ];
+```
+Dessa forma, ele ira converter o base64 em um arquivo, salva-lo no storage no path pre-definido e me devolver a URL de acesso ao arquivo e adicionar isso para salva-la no banco caso exista uma coluna com o nome de "logo" nesse caso.
+algo tipo:
+```json 
+  {
+    "logo": "localhost/storage/asdf-asdf-asdf-asdf.png"
+  }
+
+```
