@@ -9,7 +9,9 @@ use App\Services\{{SERVICE_NAME}}Service;
 class {{SERVICE_NAME}}Controller extends Controller
 {
     public {{SERVICE_NAME}}Service $service;
-    protected $validators = [];
+    protected ?array $validators = [];
+    protected ?array $replaceOnUpdate = [];
+    protected ?array $excludeOnUpdate = [];
 
     public function __construct({{SERVICE_NAME}}Service $service)
     {
