@@ -118,6 +118,9 @@ Com a nova versao, nao precisamos mais disso, veja o exemplo:
 ```
 Eu preciso apenas informar o Repository que vira como "filho" do objeto e em qual momento deve ser persistido, antes ou depois do principal.
 
+Obs: Para fazer em mais nivel, por exemplo, para dentro de EventAddress, basta eu adicionar no Repository dele e isso ira gerar mais um nivel. 
+
+
 # #3 - Repository
 Caso eu precise armazenar uma imagem, considerando que irei recebe-la em base64 via requisicao JSON, no seguinte exemplo:
 ```json 
