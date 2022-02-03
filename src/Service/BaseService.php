@@ -2,8 +2,14 @@
 
 namespace gersonalves\laravelBase\Service;
 
+use Exception;
+use gersonalves\laravelBase\Helpers\PersistEnum;
+use gersonalves\laravelBase\Repository\BaseRepository;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use ReflectionClass;
 
 abstract class BaseService implements BaseServiceInterface
 {
@@ -12,6 +18,7 @@ abstract class BaseService implements BaseServiceInterface
 
     public ?array $excepts = [];
     public ?array $casts = [];
+    public ?array $recursiveStore = [];
 
     public function __construct($repository = null)
     {
@@ -44,14 +51,29 @@ abstract class BaseService implements BaseServiceInterface
         return $this->repository->get();
     }
 
+    /**
+     * @throws Exception
+     */
     private function store(Request $data)
     {
-        return $this->repository->store($data);
+        if (count($this->recursiveStore)) {
+            return $this->customStore($data);
+        } else {
+            return $this->repository->store($data);
+        }
     }
 
+    /**
+     * @throws Exception
+     */
     private function update(Request $data)
     {
-        return $this->repository->update($data);
+        if (count($this->recursiveStore)) {
+            return $this->customStore($data);
+        } else {
+            return $this->repository->update($data);
+        }
+
     }
 
     private function destroy(int $id)
@@ -97,6 +119,35 @@ abstract class BaseService implements BaseServiceInterface
                     break;
             }
             $this->mergeRequest(request(), [$index => $newValue]);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function customStore(Request $data)
+    {
+        DB::beginTransaction();
+        try {
+            foreach ($this->recursiveStore as $repository => $settings) {
+                if (!is_subclass_of($repository, BaseRepository::class, true)) {
+                    throw new Exception("recurviseStore, o repositorio deve ser uma extensao de gerson/laravel-base");
+                }
+                $childrenRepository = new $repository();
+                $childrenModel = (new ReflectionClass($childrenRepository->getModel()::class))->getShortName();
+                $childrenData = $data->get(Str::snake($childrenModel));
+
+                if ($settings === PersistEnum::BEFORE_PERSIST) {
+                    $children = $childrenRepository->store(new Request($childrenData));
+                    $this->mergeRequest($data, [$childrenRepository->getModel()->getKeyName() => $children[$childrenRepository->getModel()->getKeyName()]]);
+                    $model = $this->repository->store($data);
+                    DB::commit();
+                    return array_merge($model, [Str::snake($childrenModel) => $children]);
+                }
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new Exception($e->getMessage());
         }
     }
 }

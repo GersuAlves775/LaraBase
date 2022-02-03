@@ -13,3 +13,13 @@ if (!Collection::hasMacro('paginate')) {
                 ->withPath('');
         });
 }
+
+if (!function_exists('is_base64')) {
+    function is_base64($s): bool
+    {
+        $s = explode(",", $s);
+        $s = is_array($s) && count($s) > 1 ? $s[1] : $s[0];
+
+        return (bool)preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s);
+    }
+}
