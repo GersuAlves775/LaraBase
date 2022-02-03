@@ -71,7 +71,7 @@ Em sua controller, voce pode configurar a validacao da seguinte forma:
 
 # #1 - Controllers
 ```php 
-  protected array $validators = [
+  protected ?array $validators = [
         'email' => 'required|unique:users,email',
         'password' => 'required|min:8|string',
         'cpf' => 'required|cpf|formato_cpf',
@@ -83,7 +83,7 @@ para resolver isso, tempos duas opcoes, a primeira eh sobrescrever a regra do e-
 
 
 ```php 
-  protected array $replaceOnUpdate = [
+  protected ?array $replaceOnUpdate = [
         'email' => 'required'
     ];
 ```
@@ -91,7 +91,7 @@ Dessa forma, ele ira fazer um merge entre os dois arrays, quando update e o e-ma
 Alem disso, ele ira manter as demais regras, para cpf e password, caso eu queira remove-los, posso fazer da seguinte forma:
 
 ```php 
-  protected array $excludeOnUpdate = ['cpf', 'password'];
+  protected ?array $excludeOnUpdate = ['cpf', 'password'];
 ```
 
 Dessa forma, usando os 3, o resultado sera, aplicara apenas o $validators ao criar um novo registro e ao atualizar, apenas ira obrigar a preencher o E-mail.
