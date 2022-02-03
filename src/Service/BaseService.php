@@ -138,12 +138,20 @@ abstract class BaseService implements BaseServiceInterface
                 $childrenData = $data->get(Str::snake($childrenModel));
 
                 if ($settings === PersistEnum::BEFORE_PERSIST) {
+                    $childrenKeyName = $childrenRepository->getModel()->getKeyName();
                     $children = $childrenRepository->store(new Request($childrenData));
-                    $this->mergeRequest($data, [$childrenRepository->getModel()->getKeyName() => $children[$childrenRepository->getModel()->getKeyName()]]);
+                    $this->mergeRequest($data, [$childrenKeyName => $children[$childrenKeyName]]);
                     $model = $this->repository->store($data);
-                    DB::commit();
-                    return array_merge($model, [Str::snake($childrenModel) => $children]);
+                } else if ($settings === PersistEnum::AFTER_PERSIST) {
+                    $modelKeyName = $this->repository->getModel()->getKeyName();
+                    $model = $this->repository->store($data);
+                    $this->mergeRequest($data, [$modelKeyName => $model[$modelKeyName]]);
+                    $children = $childrenRepository->store(new Request($childrenData));
+                } else {
+                    throw new Exception("Tipo de persistencia nao existente.");
                 }
+                DB::commit();
+                return array_merge($model, [Str::snake($childrenModel) => $children]);
             }
         } catch (\Exception $e) {
             DB::rollBack();
