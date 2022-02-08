@@ -33,6 +33,11 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model = $this->model->get();
     }
 
+    public function findBy(string $column, mixed $value)
+    {
+        return $this->model = $this->model->where($column, '=', $value)->get();
+    }
+
     public function withRelations(): baseRepository
     {
         if (method_exists(get_class($this->model), 'scopeWithRelations'))
