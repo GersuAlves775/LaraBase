@@ -64,12 +64,21 @@ abstract class BaseRepository implements BaseRepositoryInterface
                 $this->getStoreContent($data)
             );
         } else {
-            return $this->model = $this->model->create(
+            return $this->setModel($this->model->create(
                 $this->getStoreContent($data)
-            )->toArray();
+            )->toArray());
         }
+        return $this->setModel($this->getStoreContent($data));
 
-        return $this->model = $this->getStoreContent($data);
+    }
+
+    private function setModel($data)
+    {
+        $myModel = new $this->model();
+        $myModel->fill($data);
+
+        return $this->model = $myModel;
+
     }
 
     private function getStoreContent(Request $data)
