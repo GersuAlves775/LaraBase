@@ -83,8 +83,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     private function getStoreContent(Request $data)
     {
+        $myFillable = array_merge($this->getModel()->getFillable(), [$this->getModel()->getKeyName()]);
         $itensToUpdate = array_intersect(
-            array_keys($data->all()), $this->getModel()->getFillable()
+            array_keys($data->all()), $myFillable
         );
         return Collection::make(
             array_flip(
