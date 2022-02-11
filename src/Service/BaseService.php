@@ -43,7 +43,7 @@ abstract class BaseService implements BaseServiceInterface
         return $this->repository->getModel()->$name;
     }
 
-    private function get(int $id = null)
+    protected function get(int $id = null)
     {
         if ($id)
             return $this->repository->get($id);
@@ -54,7 +54,7 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws Exception
      */
-    private function store(Request $data)
+    protected function store(Request $data)
     {
         if (count($this->recursiveStore)) {
             return $this->customStore($data);
@@ -66,7 +66,7 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws Exception
      */
-    private function update(Request $data)
+    protected function update(Request $data)
     {
         if (count($this->recursiveStore)) {
             return $this->customStore($data);
@@ -76,7 +76,7 @@ abstract class BaseService implements BaseServiceInterface
 
     }
 
-    private function destroy(int $id)
+    protected function destroy(int $id)
     {
         return $this->repository->destroy($id);
     }
@@ -125,7 +125,7 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws Exception
      */
-    private function customStore(Request $data)
+    protected function customStore(Request $data)
     {
         DB::beginTransaction();
         try {

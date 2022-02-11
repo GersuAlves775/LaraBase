@@ -132,6 +132,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $imagem = str_replace('data:image/jpg;base64,', '', $imagem);
         $imagem = str_replace('data:image/jpeg;base64,', '', $imagem);
         $imagem = str_replace('data:image/gif;base64,', '', $imagem);
+        $imagem = str_replace('data:application/pdf;base64,', '', $imagem);
         $imagem = str_replace(' ', '+', $imagem);
 
         Storage::disk('local')->put($path . $filename, base64_decode($imagem));
