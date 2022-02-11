@@ -78,7 +78,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $myModel->fill($data);
 
         return $this->model = $myModel;
-
     }
 
     private function getStoreContent(Request $data)

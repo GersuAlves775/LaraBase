@@ -151,7 +151,7 @@ abstract class BaseService implements BaseServiceInterface
                     throw new Exception("Tipo de persistencia nao existente.");
                 }
                 DB::commit();
-                return array_merge($model, [Str::snake($childrenModel) => $children]);
+                return array_merge($model->toArray(), [Str::snake($childrenModel) => $children]);
             }
         } catch (\Exception $e) {
             DB::rollBack();
