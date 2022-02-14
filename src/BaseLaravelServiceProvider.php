@@ -3,6 +3,8 @@
 namespace gersonalves\laravelBase;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Schema\Blueprint;
+
 
 class BaseLaravelServiceProvider extends ServiceProvider
 {
@@ -15,6 +17,18 @@ class BaseLaravelServiceProvider extends ServiceProvider
                 CrudGenerateCommand::class
             ]);
         }
+
+        Blueprint::macro('userRegister', function () {
+            $this->unsignedBigInteger('created_by');
+            $this->foreign('created_by')
+                ->references('id_user')
+                ->on('user');
+
+            $this->unsignedBigInteger('updated_by');
+            $this->foreign('updated_by')
+                ->references('id_user')
+                ->on('user');
+        });
     }
 
     public function register()

@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use ReflectionClass;
+use ReflectionException;
 
 abstract class BaseService implements BaseServiceInterface
 {
@@ -19,6 +20,7 @@ abstract class BaseService implements BaseServiceInterface
     public ?array $excepts = [];
     public ?array $casts = [];
     public ?array $recursiveStore = [];
+    private string|null $recursiveCallBack = null;
 
     public function __construct($repository = null)
     {
@@ -130,32 +132,98 @@ abstract class BaseService implements BaseServiceInterface
         DB::beginTransaction();
         try {
             foreach ($this->recursiveStore as $repository => $settings) {
-                if (!is_subclass_of($repository, BaseRepository::class, true)) {
-                    throw new Exception("recurviseStore, o repositorio deve ser uma extensao de gerson/laravel-base");
+                $this->customValidations($settings, $repository);
+                $persist = $settings['persist'];
+                if ($persist === PersistEnum::BEFORE_PERSIST) {
+                    $this->persistBefores($repository, $settings, $data);
                 }
-                $childrenRepository = new $repository();
-                $childrenModel = (new ReflectionClass($childrenRepository->getModel()::class))->getShortName();
-                $childrenData = $data->get(Str::snake($childrenModel));
-
-                if ($settings === PersistEnum::BEFORE_PERSIST) {
-                    $childrenKeyName = $childrenRepository->getModel()->getKeyName();
-                    $children = $childrenRepository->store(new Request($childrenData));
-                    $this->mergeRequest($data, [$childrenKeyName => $children[$childrenKeyName]]);
-                    $model = $this->repository->store($data);
-                } else if ($settings === PersistEnum::AFTER_PERSIST) {
-                    $modelKeyName = $this->repository->getModel()->getKeyName();
-                    $model = $this->repository->store($data);
-                    $this->mergeRequest($data, [$modelKeyName => $model[$modelKeyName]]);
-                    $children = $childrenRepository->store(new Request($childrenData));
-                } else {
-                    throw new Exception("Tipo de persistencia nao existente.");
-                }
-                DB::commit();
-                return array_merge($model->toArray(), [Str::snake($childrenModel) => $children]);
             }
+
+            $modelKeyName = $this->repository->getModel()->getKeyName();
+            $model = $this->repository->store($data);
+
+
+            $relationBag = [];
+            foreach ($this->recursiveStore as $repository => $settings) {
+                if ($persist === PersistEnum::AFTER_PERSIST) {
+                    if (empty($model->$modelKeyName)) {
+                        throw new Exception("Voce precis adicionar {$modelKeyName} ao 'fillable' de sua model.");
+                    }
+                    $childrenModelName = lcfirst($this->persistAfters($repository, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
+
+                    $relationName = isset($settings['customRelationName']) ? $settings['customRelationName'] : $childrenModelName;
+                    if (!method_exists($model, $relationName)) {
+                        $modelClass = $this->repository->getModel()::class;
+                        throw new Exception("A relacao {$relationName} precisa existir em {$modelClass}");
+                    }
+                    $relationBag[] = $relationName;
+                }
+            }
+            DB::commit();
+
+
+            $latest = $model->
+            with($relationBag)
+                ->where($modelKeyName, $model->$modelKeyName)
+                ->latest()->firstOrFail();
+
+            if (!is_null($this->recursiveCallBack) && method_exists($this, $this->recursiveCallBack)) {
+                $callbackResponse = call_user_func_array([$this, $this->recursiveCallBack], [$latest]);
+                if ($callbackResponse)
+                    return $callbackResponse;
+            }
+
+            return $latest;
         } catch (\Exception $e) {
             DB::rollBack();
             throw new Exception($e->getMessage());
         }
     }
+
+
+    /**
+     * @throws ReflectionException
+     */
+    private function persistBefores($repository, $settings, $data)
+    {
+        $childrenRepository = new $repository();
+        $childrenModel = (new ReflectionClass($childrenRepository->getModel()::class))->getShortName();
+        $childrenData = $data->get(Str::snake($childrenModel));
+
+        $childrenKeyName = $childrenRepository->getModel()->getKeyName();
+        $children = $childrenRepository->store(new Request($childrenData));
+        $this->mergeRequest($data, [$childrenKeyName => $children[$childrenKeyName]]);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function persistAfters($repository, $settings, $data, ...$options): string
+    {
+        $childrenRepository = new $repository();
+        $childrenModel = (new ReflectionClass($childrenRepository->getModel()::class))->getShortName();
+        $childrenData = $data->get(Str::snake($childrenModel));
+        $childrenData = array_merge($childrenData, [$options['key'] => $options['value']]);
+        $childrenKeyName = $childrenRepository->getModel()->getKeyName();
+        $childrenRepository->store(new Request($childrenData));
+
+        return $childrenModel;
+    }
+
+    public function customValidations($settings, $repository)
+    {
+        if (!isset($settings['persist'])) {
+            throw new \Exception("O persist precisa ser definido");
+        }
+
+        if (!is_subclass_of($repository, BaseRepository::class, true)) {
+            $childrenRepository = new $repository();
+            $childrenModel = (new ReflectionClass($childrenRepository->getModel()::class))->getShortName();
+            throw new Exception($childrenModel . ", deve extender de de gerson/laravel-base BaseRepository");
+        }
+
+        if (!is_null($this->recursiveCallBack) && !method_exists($this, $this->recursiveCallBack))
+            throw new \Exception("O callback {$this->recursiveCallBack} foi informado mas o metodo nao existe.");
+    }
+
 }
