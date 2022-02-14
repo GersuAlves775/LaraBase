@@ -20,7 +20,7 @@ abstract class BaseService implements BaseServiceInterface
     public ?array $excepts = [];
     public ?array $casts = [];
     public ?array $recursiveStore = [];
-    private string|null $recursiveCallBack = null;
+    public string|null $recursiveCallBack = null;
 
     public function __construct($repository = null)
     {
