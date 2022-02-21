@@ -131,27 +131,31 @@ abstract class BaseService implements BaseServiceInterface
     {
         DB::beginTransaction();
         try {
+            $relationBag = [];
             foreach ($this->recursiveStore as $repository => $settings) {
                 $this->customValidations($settings, $repository);
                 $persist = $settings['persist'];
                 if ($persist === PersistEnum::BEFORE_PERSIST) {
-                    $this->persistBefores($repository, $settings, $data);
+                    $childrenModelName = lcfirst($this->persistBefores($repository, $settings, $data));
+                    $relationName = $settings['customRelationName'] ?? $childrenModelName;
+                    $relationBag[] = $relationName;
                 }
             }
 
             $modelKeyName = $this->repository->getModel()->getKeyName();
             $model = $this->repository->store($data);
 
+            if (empty($model->$modelKeyName)) {
+                throw new Exception("Voce precis adicionar {$modelKeyName} ao 'fillable' de sua model.");
+            }
 
-            $relationBag = [];
+
             foreach ($this->recursiveStore as $repository => $settings) {
+                $this->customValidations($settings, $repository);
+                $persist = $settings['persist'];
                 if ($persist === PersistEnum::AFTER_PERSIST) {
-                    if (empty($model->$modelKeyName)) {
-                        throw new Exception("Voce precis adicionar {$modelKeyName} ao 'fillable' de sua model.");
-                    }
                     $childrenModelName = lcfirst($this->persistAfters($repository, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
-
-                    $relationName = isset($settings['customRelationName']) ? $settings['customRelationName'] : $childrenModelName;
+                    $relationName = $settings['customRelationName'] ?? $childrenModelName;
                     if (!method_exists($model, $relationName)) {
                         $modelClass = $this->repository->getModel()::class;
                         throw new Exception("A relacao {$relationName} precisa existir em {$modelClass}");
@@ -159,8 +163,11 @@ abstract class BaseService implements BaseServiceInterface
                     $relationBag[] = $relationName;
                 }
             }
+
             DB::commit();
 
+
+            $relationBag = array_filter($relationBag, fn($value) => !is_null($value) && $value !== '');
 
             $latest = $model->
             with($relationBag)
@@ -184,15 +191,20 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws ReflectionException
      */
-    private function persistBefores($repository, $settings, $data)
+    private function persistBefores($repository, $settings, $data): string
     {
         $childrenRepository = new $repository();
         $childrenModel = (new ReflectionClass($childrenRepository->getModel()::class))->getShortName();
         $childrenData = $data->get(Str::snake($childrenModel));
 
+        if (empty($childrenData))
+            return '';
+
         $childrenKeyName = $childrenRepository->getModel()->getKeyName();
         $children = $childrenRepository->store(new Request($childrenData));
         $this->mergeRequest($data, [$childrenKeyName => $children[$childrenKeyName]]);
+
+        return $childrenModel;
     }
 
     /**
@@ -203,8 +215,11 @@ abstract class BaseService implements BaseServiceInterface
         $childrenRepository = new $repository();
         $childrenModel = (new ReflectionClass($childrenRepository->getModel()::class))->getShortName();
         $childrenData = $data->get(Str::snake($childrenModel));
+
+        if (empty($childrenData))
+            return '';
+
         $childrenData = array_merge($childrenData, [$options['key'] => $options['value']]);
-        $childrenKeyName = $childrenRepository->getModel()->getKeyName();
         $childrenRepository->store(new Request($childrenData));
 
         return $childrenModel;

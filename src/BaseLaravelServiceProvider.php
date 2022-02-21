@@ -19,12 +19,12 @@ class BaseLaravelServiceProvider extends ServiceProvider
         }
 
         Blueprint::macro('userRegister', function () {
-            $this->unsignedBigInteger('created_by');
+            $this->unsignedBigInteger('created_by')->nullable();
             $this->foreign('created_by')
                 ->references('id_user')
                 ->on('user');
 
-            $this->unsignedBigInteger('updated_by');
+            $this->unsignedBigInteger('updated_by')->nullable();
             $this->foreign('updated_by')
                 ->references('id_user')
                 ->on('user');
