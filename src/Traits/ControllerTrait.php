@@ -78,6 +78,6 @@ trait ControllerTrait
 
     public function getTable(Request $request): JsonResponse
     {
-        return DataTables::eloquent($this->service->query())->toJson();
+        return DataTables::eloquent($this->service->query()->getModel())->toJson();
     }
 }
