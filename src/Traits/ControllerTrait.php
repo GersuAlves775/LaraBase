@@ -4,7 +4,7 @@ namespace gersonalves\laravelBase\Traits;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
+use Yajra\DataTables\Facades\DataTables;
 
 trait ControllerTrait
 {
@@ -74,5 +74,10 @@ trait ControllerTrait
     public function getErrorString($e, string $customMessage = "Server error"): string
     {
         return env("APP_DEBUG") ? $e->getMessage() : $customMessage;
+    }
+
+    public function getTable(Request $request): JsonResponse
+    {
+        return DataTables::eloquent($this->service->query())->toJson();
     }
 }

@@ -10,7 +10,8 @@
         }
     ],
     "require": {
-        "php": "^8.1"
+        "php": "^8.1",
+        "yajra/laravel-datatables-oracle": "~9.0"
     },
     "autoload": {
         "psr-4": {

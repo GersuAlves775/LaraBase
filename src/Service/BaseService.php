@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionException;
+use Illuminate\Support\Facades\Hash;
 
 abstract class BaseService implements BaseServiceInterface
 {
@@ -38,6 +39,11 @@ abstract class BaseService implements BaseServiceInterface
         }
 
         return call_user_func_array([$this, $name], $arguments);
+    }
+
+    public function query()
+    {
+        return $this->repository->withRelations();
     }
 
     public function __get(string $name)
@@ -112,6 +118,9 @@ abstract class BaseService implements BaseServiceInterface
             $data = request()->get($index);
             $newValue = null;
             switch ($cast) {
+                case 'password':
+                    $newValue = Hash::make($data);
+                    break;
                 case 'date':
                 case 'datetime':
                     $newValue = Carbon::parse($data);
