@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "gersonalves\\laravelBase\\": "src/"
+            "gersonalves\\laravelBase\\": ["src/"]
         }
     },
     "autoload-dev": {
