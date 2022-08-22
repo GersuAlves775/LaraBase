@@ -8,10 +8,6 @@ use Yajra\DataTables\Facades\DataTables;
 
 trait ControllerTrait
 {
-    protected array $validators = [];
-    protected array $excludeOnUpdate = [];
-    protected array $replaceOnUpdate = [];
-
     public function index(): JsonResponse
     {
         try {
@@ -36,29 +32,11 @@ trait ControllerTrait
 
     public function update(int $id, Request $request): JsonResponse
     {
-        $excludes = $this->excludeOnUpdate;
-        $replaces = $this->replaceOnUpdate;
-
-        if (count($this->excludeOnUpdate)) {
-            $this->validators = array_filter($this->validators, function ($k) use ($excludes) {
-                return !(in_array($k, $excludes));
-            }, ARRAY_FILTER_USE_KEY);
-        }
-
-        if (count($this->replaceOnUpdate)) {
-            $this->validators = collect($this->validators)->map(function ($rule, $key) use ($replaces) {
-                return $replaces[$key] ?? $rule;
-            })->toArray();
-        }
-
-        $request->validate($this->validators);
-
         return response()->json($this->service->update($request));
     }
 
     public function store(Request $request): JsonResponse
     {
-        $request->validate($this->validators);
         return response()->json($this->service->store($request));
     }
 
