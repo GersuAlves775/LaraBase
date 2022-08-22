@@ -38,7 +38,7 @@ trait RequestTrait
 
     private function validate(array $data)
     {
-        $validation = Validator::make($this->validators, $data);
+        $validation = Validator::make($data, $this->validators);
 
         if ($validation->fails())
             throw new ValidationException($validation);
