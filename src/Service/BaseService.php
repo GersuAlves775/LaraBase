@@ -30,6 +30,8 @@ abstract class BaseService implements BaseServiceInterface
             $this->applyExcept();
         if (is_array($this->casts) && count($this->casts))
             $this->applyCasts();
+
+        $this->validate();
     }
 
     public function __call($name, $arguments)
@@ -67,8 +69,14 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws Exception
      */
-    protected function store(Request $data)
+    protected function store(Request|array $data)
     {
+        if (!$data instanceof Illuminate\Http\Request) {
+            $data = new Request($data);
+        }
+
+        $this->repositoryRequest->create($data->all());
+
         if (count($this->recursiveStore)) {
             return $this->customStore($data);
         } else {
@@ -79,8 +87,14 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws Exception
      */
-    protected function update(Request $data)
+    protected function update(Request|array $data)
     {
+        if (!$data instanceof Illuminate\Http\Request) {
+            $data = new Request($data);
+        }
+
+        $this->repositoryRequest->update($data->all());
+
         if (count($this->recursiveStore)) {
             return $this->customStore($data);
         } else {
@@ -141,8 +155,12 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws Exception
      */
-    protected function customStore(Request $data)
+    protected function customStore(Request|array $data)
     {
+        if (!$data instanceof Illuminate\Http\Request) {
+            $data = new Request($data);
+        }
+
         DB::beginTransaction();
         try {
             $relationBag = [];
@@ -253,6 +271,12 @@ abstract class BaseService implements BaseServiceInterface
 
         if (!is_null($this->recursiveCallBack) && !method_exists($this, $this->recursiveCallBack))
             throw new \Exception("O callback {$this->recursiveCallBack} foi informado mas o metodo nao existe.");
+    }
+
+    private function validate()
+    {
+        if(!$this->repositoryRequest || !class_exists($this->repositoryRequest::class))
+            throw new Exception("O atributo repositoryRequest não existe ou não é uma classe.");
     }
 
 }

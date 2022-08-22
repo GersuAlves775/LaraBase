@@ -8,7 +8,6 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Storage;
 use Ramsey\Uuid\Uuid;
@@ -16,12 +15,10 @@ use Ramsey\Uuid\Uuid;
 abstract class BaseRepository implements BaseRepositoryInterface
 {
     private $model;
-    private $request;
     protected ?array $storeFile = [];
 
     public function __construct(Model $model)
     {
-        $this->request = request();
         $this->model = $model;
     }
 
@@ -50,12 +47,12 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model;
     }
 
-    public function update(Request $data)
+    public function update(array $data)
     {
         return $this->model = $this->store($data);
     }
 
-    public function store(Request $data)
+    public function store(array $data)
     {
         $data = $this->storeAndCastFiles($data);
         if ($data->get($this->getModel()->getKeyName())) {
@@ -80,7 +77,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model = $myModel;
     }
 
-    private function getStoreContent(Request $data)
+    private function getStoreContent(array $data)
     {
         $myFillable = array_merge($this->getModel()->getFillable(), [$this->getModel()->getKeyName()]);
         $itensToUpdate = array_intersect(
@@ -97,7 +94,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
             })->toArray();
     }
 
-    private function getPrimaryKeyWithValue(Request $data): array
+    private function getPrimaryKeyWithValue(array $data): array
     {
         return [$this->getModel()->getKeyName() => $data->get($this->getModel()->getKeyName())];
     }
@@ -107,7 +104,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $this->getModel()->destroy($id);
     }
 
-    private function storeAndCastFiles(Request $data): Request
+    private function storeAndCastFiles(array $data): array
     {
         if (count($this->storeFile)) {
             foreach ($this->storeFile as $column => $settings) {
