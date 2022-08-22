@@ -23,6 +23,9 @@ abstract class BaseService implements BaseServiceInterface
     public ?array $recursiveStore = [];
     public string|null $recursiveCallBack = null;
 
+    /**
+     * @throws Exception
+     */
     public function __construct($repository = null)
     {
         $this->repository = $repository;
@@ -71,7 +74,7 @@ abstract class BaseService implements BaseServiceInterface
      */
     protected function store(Request|array $data)
     {
-        if (!$data instanceof Illuminate\Http\Request) {
+        if (is_array($data)) {
             $data = new Request($data);
         }
 
@@ -89,7 +92,7 @@ abstract class BaseService implements BaseServiceInterface
      */
     protected function update(Request|array $data)
     {
-        if (!$data instanceof Illuminate\Http\Request) {
+        if (is_array($data)) {
             $data = new Request($data);
         }
 
@@ -157,7 +160,7 @@ abstract class BaseService implements BaseServiceInterface
      */
     protected function customStore(Request|array $data)
     {
-        if (!$data instanceof Illuminate\Http\Request) {
+        if (is_array($data)) {
             $data = new Request($data);
         }
 

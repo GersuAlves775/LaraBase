@@ -47,13 +47,20 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model;
     }
 
-    public function update(array $data)
+    public function update(array|Request $data)
     {
+        if (is_array($data)) {
+            $data = new Request($data);
+        }
+
         return $this->model = $this->store($data);
     }
 
-    public function store(array $data)
+    public function store(array|Request $data)
     {
+        if (is_array($data)) {
+            $data = new Request($data);
+        }
         $data = $this->storeAndCastFiles($data);
         if ($data->get($this->getModel()->getKeyName())) {
             $this->model->updateOrCreate(
@@ -77,7 +84,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model = $myModel;
     }
 
-    private function getStoreContent(array $data)
+    private function getStoreContent(array|Request $data)
     {
         $myFillable = array_merge($this->getModel()->getFillable(), [$this->getModel()->getKeyName()]);
         $itensToUpdate = array_intersect(
@@ -94,7 +101,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
             })->toArray();
     }
 
-    private function getPrimaryKeyWithValue(array $data): array
+    private function getPrimaryKeyWithValue(array|Request $data): array
     {
         return [$this->getModel()->getKeyName() => $data->get($this->getModel()->getKeyName())];
     }
@@ -104,8 +111,12 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $this->getModel()->destroy($id);
     }
 
-    private function storeAndCastFiles(array $data): array
+    private function storeAndCastFiles(array|Request $data): Request
     {
+        if(is_array($data)){
+            $data = new Request($data);
+        }
+
         if (count($this->storeFile)) {
             foreach ($this->storeFile as $column => $settings) {
                 if ($data[$column] && is_base64($data[$column]) && $settings['type'] === fileEnum::BASE64_IMAGE) {
