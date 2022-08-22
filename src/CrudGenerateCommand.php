@@ -85,6 +85,7 @@ class CrudGenerateCommand extends Command
     private function makeFiles()
     {
         $this->createService();
+        $this->createRequest();
         if ($this->makeRepo)
             $this->createRepository();
 
@@ -141,6 +142,18 @@ class CrudGenerateCommand extends Command
         }
 
         $fp = fopen(base_path() . '/app/Http/Controllers/' . $fileName . '.php', 'w');
+        fwrite($fp, $content);
+        fclose($fp);
+    }
+
+    private function createRequest()
+    {
+        $fileName = $this->serviceName . 'Request';
+
+        $content = file_get_contents(__DIR__ . '/stubs/Request.stub');
+        $content = str_replace('{{SERVICE_NAME}}', $this->serviceName, $content);
+
+        $fp = fopen(base_path() . '/app/Requests/' . $fileName . '.php', 'w');
         fwrite($fp, $content);
         fclose($fp);
     }

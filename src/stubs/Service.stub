@@ -3,10 +3,13 @@ namespace App\Services;
 
 use App\Repositories\{{SERVICE_NAME}}Repository;
 use gersonalves\laravelBase\Service\BaseService;
+use App\Requests\{{SERVICE_NAME}}Request;
 
 class {{SERVICE_NAME}}Service extends BaseService
 {
-    public function __construct()
+    public function __construct(
+        public $repositoryRequest = new {{SERVICE_NAME}}Request()
+    )
     {
         parent::__construct(new {{SERVICE_NAME}}Repository());
     }

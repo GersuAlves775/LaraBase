@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Requests;
+use gersonalves\laravelBase\Traits\RequestTrait;
+
+class {{SERVICE_NAME}}Request
+{
+    use RequestTrait;
+
+    public array $validators = [];
+
+    public function __construct()
+    {
+        throw new \Exception("Você não implementou a request {{SERVICE_NAME}}Request");
+    }
+}
