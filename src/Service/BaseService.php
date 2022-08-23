@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use ReflectionClass;
 use ReflectionException;
 use Illuminate\Support\Facades\Hash;
@@ -20,8 +21,8 @@ abstract class BaseService implements BaseServiceInterface
 
     public ?array $excepts = [];
     public ?array $casts = [];
-    public ?array $recursiveStore = [];
-    public string|null $recursiveCallBack = null;
+    public ?array $parentStore = [];
+    public string|null $parentCallback = null;
 
     /**
      * @throws Exception
@@ -80,7 +81,7 @@ abstract class BaseService implements BaseServiceInterface
 
         $this->repositoryRequest->create($data->all());
 
-        if (count($this->recursiveStore)) {
+        if (count($this->parentStore)) {
             return $this->customStore($data);
         } else {
             return $this->repository->store($data);
@@ -98,7 +99,7 @@ abstract class BaseService implements BaseServiceInterface
 
         $this->repositoryRequest->update($data->all());
 
-        if (count($this->recursiveStore)) {
+        if (count($this->parentStore)) {
             return $this->customStore($data);
         } else {
             return $this->repository->update($data);
@@ -167,11 +168,11 @@ abstract class BaseService implements BaseServiceInterface
         DB::beginTransaction();
         try {
             $relationBag = [];
-            foreach ($this->recursiveStore as $repository => $settings) {
-                $this->customValidations($settings, $repository);
+            foreach ($this->parentStore as $service => $settings) {
+                $this->customValidations($settings, $service);
                 $persist = $settings['persist'];
                 if ($persist === PersistEnum::BEFORE_PERSIST) {
-                    $childrenModelName = lcfirst($this->persistBefores($repository, $settings, $data));
+                    $childrenModelName = lcfirst($this->persistBefores($service, $settings, $data));
                     $relationName = $settings['customRelationName'] ?? $childrenModelName;
                     $relationBag[] = $relationName;
                 }
@@ -185,7 +186,7 @@ abstract class BaseService implements BaseServiceInterface
             }
 
 
-            foreach ($this->recursiveStore as $repository => $settings) {
+            foreach ($this->parentStore as $repository => $settings) {
                 $this->customValidations($settings, $repository);
                 $persist = $settings['persist'];
                 if ($persist === PersistEnum::AFTER_PERSIST) {
@@ -209,13 +210,15 @@ abstract class BaseService implements BaseServiceInterface
                 ->where($modelKeyName, $model->$modelKeyName)
                 ->latest()->firstOrFail();
 
-            if (!is_null($this->recursiveCallBack) && method_exists($this, $this->recursiveCallBack)) {
-                $callbackResponse = call_user_func_array([$this, $this->recursiveCallBack], [$latest]);
+            if (!is_null($this->parentCallback) && method_exists($this, $this->parentCallback)) {
+                $callbackResponse = call_user_func_array([$this, $this->parentCallback], [$latest]);
                 if ($callbackResponse)
                     return $callbackResponse;
             }
 
             return $latest;
+        } catch (ValidationException $e) {
+            throw new ValidationException($e->validator, $e->response, $e->errorBag);
         } catch (\Exception $e) {
             DB::rollBack();
             throw new Exception($e->getMessage());
@@ -226,59 +229,58 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws ReflectionException
      */
-    private function persistBefores($repository, $settings, $data): string
+    private function persistBefores($service, $settings, $data): string
     {
-        $childrenRepository = new $repository();
-        $childrenModel = (new ReflectionClass($childrenRepository->getModel()::class))->getShortName();
+        $childrenService = new $service();
+        $childrenModel = (new ReflectionClass($childrenService->getModel()::class))->getShortName();
         $childrenData = $data->get(Str::snake($childrenModel));
 
         if (empty($childrenData))
             return '';
 
-        $childrenKeyName = $childrenRepository->getModel()->getKeyName();
-        $children = $childrenRepository->store(new Request($childrenData));
+        $childrenKeyName = $childrenService->getModel()->getKeyName();
+        $children = $childrenService->store(new Request($childrenData));
         $this->mergeRequest($data, [$childrenKeyName => $children[$childrenKeyName]]);
-
         return $childrenModel;
     }
 
     /**
      * @throws ReflectionException
      */
-    private function persistAfters($repository, $settings, $data, ...$options): string
+    private function persistAfters($service, $settings, $data, ...$options): string
     {
-        $childrenRepository = new $repository();
-        $childrenModel = (new ReflectionClass($childrenRepository->getModel()::class))->getShortName();
+        $childrenService = new $service();
+        $childrenModel = (new ReflectionClass($childrenService->getModel()::class))->getShortName();
         $childrenData = $data->get(Str::snake($childrenModel));
 
         if (empty($childrenData))
             return '';
 
         $childrenData = array_merge($childrenData, [$options['key'] => $options['value']]);
-        $childrenRepository->store(new Request($childrenData));
+        $childrenService->store(new Request($childrenData));
 
         return $childrenModel;
     }
 
-    public function customValidations($settings, $repository)
+    public function customValidations($settings, $service)
     {
         if (!isset($settings['persist'])) {
             throw new \Exception("O persist precisa ser definido");
         }
 
-        if (!is_subclass_of($repository, BaseRepository::class, true)) {
-            $childrenRepository = new $repository();
-            $childrenModel = (new ReflectionClass($childrenRepository->getModel()::class))->getShortName();
-            throw new Exception($childrenModel . ", deve extender de de gerson/laravel-base BaseRepository");
+        if (!is_subclass_of($service, BaseService::class, true)) {
+            $childrenService = new $service();
+            $childrenModel = (new ReflectionClass($childrenService->getModel()::class))->getShortName();
+            throw new Exception($childrenModel . ", deve extender de de gerson/laravel-base BaseService");
         }
 
-        if (!is_null($this->recursiveCallBack) && !method_exists($this, $this->recursiveCallBack))
-            throw new \Exception("O callback {$this->recursiveCallBack} foi informado mas o metodo nao existe.");
+        if (!is_null($this->parentCallback) && !method_exists($this, $this->parentCallback))
+            throw new \Exception("O callback {$this->parentCallback} foi informado mas o metodo nao existe.");
     }
 
     private function validate()
     {
-        if(!$this->repositoryRequest || !class_exists($this->repositoryRequest::class))
+        if (!$this->repositoryRequest || !class_exists($this->repositoryRequest::class))
             throw new Exception("O atributo repositoryRequest não existe ou não é uma classe.");
     }
 

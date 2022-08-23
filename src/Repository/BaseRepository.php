@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Storage;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Http\Request;
 
 abstract class BaseRepository implements BaseRepositoryInterface
 {
