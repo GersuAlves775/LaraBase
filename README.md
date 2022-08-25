@@ -113,8 +113,16 @@ Em nossa versao anterior, precisavamos fazer assim para salver algo em multi niv
 Com a nova versao, nao precisamos mais disso, veja o exemplo:
 ```php 
  protected ?array $parentStore = [
-        EventAddressService::class => PersistEnum::BEFORE_PERSIST
+        EventAddressService::class => 
+        [
+          'persist' => PersistEnum::BEFORE_PERSIST,
+          'callback' => 'NomeDaFuncaoDoCallBack'
+        ]
     ];
+    
+    public function NomeDaFuncaoCallBack($model){
+      
+    }
 ```
 Eu preciso apenas informar o Repository que vira como "filho" do objeto e em qual momento deve ser persistido, antes ou depois do principal.
 
