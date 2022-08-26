@@ -43,7 +43,11 @@ trait ControllerTrait
     public function destroy(int $id): JsonResponse
     {
         try {
-            return response()->json($this->service->destroy($id));
+            $this->service->destroy($id);
+            return response()->json([
+                'success' => 'true',
+                'message' => 'Registro deletado com sucesso',
+            ]);
         } catch (\Exception $e) {
             return response()->json($this->getErrorString($e, "Registro não encontrado."), 404);
         }

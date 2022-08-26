@@ -91,13 +91,14 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws Exception
      */
-    protected function update(Request|array $data)
+    protected function update(int $id, Request|array $data)
     {
         if (is_array($data)) {
             $data = new Request($data);
         }
 
         $this->repositoryRequest->update($data->all());
+        $this->mergeRequest($data, [$this->getModel()->getKeyName() => $id]);
 
         if (count($this->parentStore)) {
             return $this->customStore($data);
@@ -192,7 +193,7 @@ abstract class BaseService implements BaseServiceInterface
                 if ($persist === PersistEnum::AFTER_PERSIST) {
                     $childrenModelName = lcfirst($this->persistAfters($repository, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
                     $relationName = $settings['customRelationName'] ?? $childrenModelName;
-                    if (!method_exists($model, $relationName)) {
+                    if ($relationName && !method_exists($model, $relationName)) {
                         $modelClass = $this->repository->getModel()::class;
                         throw new Exception("A relacao {$relationName} precisa existir em {$modelClass}");
                     }
