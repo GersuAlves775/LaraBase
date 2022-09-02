@@ -23,3 +23,41 @@ if (!function_exists('is_base64')) {
         return (bool)preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s);
     }
 }
+
+
+if (!function_exists('responseSuccess')) {
+    function responseSuccess(int $httpCode, $message = null, $data = null): Response|Application|ResponseFactory
+    {
+        if (empty($message)) {
+            $message = 'success';
+        }
+
+        return response([
+            'message' => $message,
+            'data' => $data
+        ], $httpCode);
+    }
+}
+/**
+ * Response error
+ *
+ * @param int $httpCode
+ * @param null $message
+ * @param null $errors
+ * @return Application|ResponseFactory|Response
+ */
+if (!function_exists('responseError')) {
+    function responseError(int $httpCode, $message = null, $errors = null): Response|Application|ResponseFactory
+    {
+        if (empty($message)) {
+            $message = 'error';
+        }
+
+        return response([
+            'message' => $message,
+            'errors' => $errors,
+        ], $httpCode);
+    }
+}
+
+

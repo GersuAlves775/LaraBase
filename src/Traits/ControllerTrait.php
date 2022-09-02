@@ -14,7 +14,12 @@ trait ControllerTrait
             if (request()->limit)
                 return response()->json($this->service->paginate());
 
-            return response()->json($this->service->get());
+            $response = $this->service->get();
+            if ($this->resource && class_exists($this->resource) && method_exists($this->resource, 'collection')) {
+                return $this->resource::collection($response);
+            }
+
+            return responseSuccess($response);
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
@@ -23,7 +28,10 @@ trait ControllerTrait
     public function show(int $id): JsonResponse
     {
         try {
-            return response()->json($this->service->get($id));
+            $response = $this->service->get($id);
+
+
+            return response()->json();
 
         } catch (\Exception $e) {
             return response()->json($this->getErrorString($e, "Registro não encontrado."), 404);
@@ -32,7 +40,7 @@ trait ControllerTrait
 
     public function update(int $id, Request $request): JsonResponse
     {
-        return response()->json($this->service->update($request));
+        return response()->json($this->service->update($id, $request));
     }
 
     public function store(Request $request): JsonResponse
