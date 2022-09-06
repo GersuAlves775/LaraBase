@@ -15,7 +15,7 @@ trait ControllerTrait
                 return response()->json($this->service->paginate());
 
             $response = $this->service->get();
-            if ($this->resource && class_exists($this->resource) && method_exists($this->resource, 'collection')) {
+            if (method_exists($this->resource, 'collection')) {
                 return $this->resource::collection($response);
             }
 
