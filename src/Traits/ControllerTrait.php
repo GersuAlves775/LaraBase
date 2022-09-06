@@ -8,7 +8,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 trait ControllerTrait
 {
-    public function index(): JsonResponse
+    public function index()
     {
         try {
             if (request()->limit)
@@ -19,20 +19,18 @@ trait ControllerTrait
                 return $this->resource::collection($response);
             }
 
-            return responseSuccess($response);
+            return responseSuccess(200, 'success', $response);
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
     }
 
-    public function show(int $id): JsonResponse
+    public function show(int $id)
     {
         try {
             $response = $this->service->get($id);
 
-
-            return response()->json();
-
+            return responseSuccess(200, 'success', $response);
         } catch (\Exception $e) {
             return response()->json($this->getErrorString($e, "Registro não encontrado."), 404);
         }
@@ -40,12 +38,13 @@ trait ControllerTrait
 
     public function update(int $id, Request $request): JsonResponse
     {
-        return response()->json($this->service->update($id, $request));
+        return responseSuccess(200, 'success', $this->service->update($id, $request));
+
     }
 
     public function store(Request $request): JsonResponse
     {
-        return response()->json($this->service->store($request));
+        return responseSuccess(200, 'success', $this->service->store($request));
     }
 
     public function destroy(int $id): JsonResponse
