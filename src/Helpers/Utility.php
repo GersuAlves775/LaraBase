@@ -26,7 +26,7 @@ if (!function_exists('is_base64')) {
 
 
 if (!function_exists('responseSuccess')) {
-    function responseSuccess(int $httpCode, $message = null, $data = null): Response|Application|ResponseFactory
+    function responseSuccess(int $httpCode, $message = null, $data = null)
     {
         if (empty($message)) {
             $message = 'success';
@@ -47,7 +47,7 @@ if (!function_exists('responseSuccess')) {
  * @return Application|ResponseFactory|Response
  */
 if (!function_exists('responseError')) {
-    function responseError(int $httpCode, $message = null, $errors = null): Response|Application|ResponseFactory
+    function responseError(int $httpCode, $message = null, $errors = null)
     {
         if (empty($message)) {
             $message = 'error';

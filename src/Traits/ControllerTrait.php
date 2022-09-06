@@ -15,7 +15,7 @@ trait ControllerTrait
                 return response()->json($this->service->paginate());
 
             $response = $this->service->get();
-            if (method_exists($this?->resource, 'collection')) {
+            if (property_exists($this, 'resource') && method_exists($this?->resource, 'collection')) {
                 return $this->resource::collection($response);
             }
 
@@ -36,7 +36,7 @@ trait ControllerTrait
         }
     }
 
-    public function update(int $id, Request $request): JsonResponse
+    public function update(int $id, Request $request)
     {
         return responseSuccess(200, 'success', $this->service->update($id, $request));
 
