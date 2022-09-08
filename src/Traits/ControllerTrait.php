@@ -3,12 +3,13 @@
 namespace gersonalves\laravelBase\Traits;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 trait ControllerTrait
 {
-    public function index()
+    public function index(): JsonResponse|Response
     {
         try {
             if (request()->limit)
@@ -25,7 +26,7 @@ trait ControllerTrait
         }
     }
 
-    public function show(int $id)
+    public function show(int $id): JsonResponse|Response
     {
         try {
             $response = $this->service->get($id);
@@ -36,18 +37,18 @@ trait ControllerTrait
         }
     }
 
-    public function update(int $id, Request $request)
+    public function update(int $id, Request $request): JsonResponse|Response
     {
         return responseSuccess(200, 'success', $this->service->update($id, $request));
 
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): JsonResponse|Response
     {
         return responseSuccess(200, 'success', $this->service->store($request));
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id): JsonResponse|Response
     {
         try {
             $this->service->destroy($id);
@@ -65,7 +66,7 @@ trait ControllerTrait
         return env("APP_DEBUG") ? $e->getMessage() : $customMessage;
     }
 
-    public function getTable(Request $request): JsonResponse
+    public function getTable(Request $request): JsonResponse|Response
     {
         return DataTables::eloquent($this->service->query()->getModel())->toJson();
     }
