@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Arr;
+
 trait RequestTrait
 {
     public function create($request): array
@@ -16,14 +17,16 @@ trait RequestTrait
 
     public function update($request): array
     {
-        $replaces = $this->replaceOnUpdate;
+        if (property_exists($this, 'replaceOnUpdate')) {
+            $replaces = $this->replaceOnUpdate;
+        }
         $validators = collect($this->validators);
 
-        if (count($this->excludeOnUpdate)) {
+        if (property_exists($this, 'excludeOnUpdate') && count($this->excludeOnUpdate)) {
             $validators = $validators->except($this->excludeOnUpdate);
         }
 
-        if (count($this->replaceOnUpdate)) {
+        if (property_exists($this, 'replaceOnUpdate') && count($this->replaceOnUpdate)) {
             $this->validators = $validators->map(
                 fn($rule, $key) => $replaces[$key] ?? $rule
             )->toArray();
