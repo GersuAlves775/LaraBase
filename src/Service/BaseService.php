@@ -192,7 +192,7 @@ abstract class BaseService implements BaseServiceInterface
                 $persist = $settings['persist'];
                 if ($persist === PersistEnum::AFTER_PERSIST) {
                     $childrenModelName = lcfirst($this->persistAfters($repository, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
-                    $relationName = $settings['customRelationName'] ?? $childrenModelName;
+                    $relationName = Str::snake($settings['customRelationName'] ?? $childrenModelName);
                     if ($relationName && !method_exists($model, $relationName)) {
                         $modelClass = $this->repository->getModel()::class;
                         throw new Exception("A relacao {$relationName} precisa existir em {$modelClass}");
