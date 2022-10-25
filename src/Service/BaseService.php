@@ -257,7 +257,7 @@ abstract class BaseService implements BaseServiceInterface
         if (empty($childrenData))
             return '';
 
-        if (is_array($childrenData)) {
+        if (array_filter($childrenData, fn($content) => is_array($content))) {
             foreach ($childrenData as $index => $childrenDatum) {
                 $childrenDatum = array_merge($childrenDatum, [$options['key'] => $options['value']]);
                 $childrenService->store(new Request($childrenDatum));
