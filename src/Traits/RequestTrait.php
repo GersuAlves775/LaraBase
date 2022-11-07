@@ -2,13 +2,15 @@
 
 namespace gersonalves\laravelBase\Traits;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Arr;
 
 trait RequestTrait
 {
+    public array $replaceOnUpdate = [];
+    public array $excludeOnUpdate = [];
+
     public function create($request): array
     {
         $this->validate($request);
@@ -17,32 +19,30 @@ trait RequestTrait
 
     public function update($request): array
     {
-        if (property_exists($this, 'replaceOnUpdate')) {
-            $replaces = $this->replaceOnUpdate;
-        }
+        $replaces = collect($this->replaceOnUpdate);
         $validators = collect($this->validators);
 
-        if (property_exists($this, 'excludeOnUpdate') && count($this->excludeOnUpdate)) {
+        if (count($this->excludeOnUpdate)) {
             $validators = $validators->except($this->excludeOnUpdate);
         }
 
-        if (property_exists($this, 'replaceOnUpdate') && count($this->replaceOnUpdate)) {
-            $this->validators = $validators->map(
-                fn($rule, $key) => $replaces[$key] ?? $rule
-            )->toArray();
+        if ($replaces->isNotEmpty()) {
+            $validators = $validators->map(
+                fn($rule, $key) => $replaces->get($key) ?? $rule
+            );
         }
 
-        $this->validate($request);
+        $this->validate($request, $validators->all());
         return Arr::only($request, array_keys($this->validators));
     }
 
-    private function validate(array $data)
+    private function validate(array $data, $validators = null)
     {
-        $validation = Validator::make($data, $this->validators);
+        $validation = Validator::make($data, $validators ?? $this->validators);
 
         if ($validation->fails())
             throw new ValidationException($validation);
 
         return $validation;
     }
-}
+}}
