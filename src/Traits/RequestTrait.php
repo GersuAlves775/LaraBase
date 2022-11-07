@@ -45,4 +45,4 @@ trait RequestTrait
 
         return $validation;
     }
-}}
+}
