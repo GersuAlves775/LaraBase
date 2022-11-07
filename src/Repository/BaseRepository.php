@@ -73,14 +73,24 @@ abstract class BaseRepository implements BaseRepositoryInterface
                 $this->getStoreContent($data)
             )->toArray());
         }
-        return $this->setModel($this->getStoreContent($data));
+
+        return $this->setModel($data);
 
     }
 
-    private function setModel($data)
+    private function setModel(array|Request $data)
     {
-        $myModel = new $this->model();
-        $myModel->fill($data);
+        if (is_array($data)) {
+            $data = new Request($data);
+        }
+
+        if (!$data->exists($this->getModel()->getKeyName())) {
+            $myModel = new $this->model();
+            $myModel->fill($data->all());
+        } else {
+            $myModel = new $this->model();
+            $myModel = $myModel->find($data->get($this->getModel()->getKeyName()));
+        }
 
         return $this->model = $myModel;
     }
@@ -114,7 +124,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     private function storeAndCastFiles(array|Request $data): Request
     {
-        if(is_array($data)){
+        if (is_array($data)) {
             $data = new Request($data);
         }
 

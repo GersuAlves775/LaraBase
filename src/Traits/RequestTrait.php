@@ -33,7 +33,7 @@ trait RequestTrait
         }
 
         $this->validate($request, $validators->all());
-        return Arr::only($request, array_keys($this->validators));
+        return Arr::only($request, array_keys($validators->all()));
     }
 
     private function validate(array $data, $validators = null)
