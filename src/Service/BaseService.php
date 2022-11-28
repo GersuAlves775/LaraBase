@@ -3,6 +3,7 @@
 namespace gersonalves\laravelBase\Service;
 
 use Exception;
+use gersonalves\laravelBase\Helpers\LarabaseOptions;
 use gersonalves\laravelBase\Helpers\PersistEnum;
 use gersonalves\laravelBase\Repository\BaseRepository;
 use Illuminate\Http\Request;
@@ -191,15 +192,14 @@ abstract class BaseService implements BaseServiceInterface
                 $this->customValidations($settings, $repository);
                 $persist = $settings['persist'];
                 if ($persist === PersistEnum::AFTER_PERSIST) {
-                    $childrenModelName = lcfirst($this->persistAfters($repository, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
-                    $relationName = Str::snake($settings['customRelationName'] ?? $childrenModelName);
-                    if ($relationName && !method_exists($model, $relationName)) {
-//                        $modelClass = $this->repository->getModel()::class;
-//                        throw new Exception("A relacao {$relationName} precisa existir em {$modelClass}");
+                    if(in_array(LarabaseOptions::SYNC, $settings['options'])){
+                        $relationName = $this->persistSync($model, $service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]);
                     } else {
-                    $relationBag[] = $relationName;
-
+                        $childrenModelName = lcfirst($this->persistAfters($service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
+                        $relationName = Str::snake($settings['customRelationName'] ?? $childrenModelName);
                     }
+
+                    $relationBag[] = $relationName;
                 }
             }
 
@@ -244,6 +244,32 @@ abstract class BaseService implements BaseServiceInterface
         $childrenKeyName = $childrenService->getModel()->getKeyName();
         $children = $childrenService->store(new Request($childrenData));
         $this->mergeRequest($data, [$childrenKeyName => $children[$childrenKeyName]]);
+        return $childrenModel;
+    }
+
+
+    /**
+     * @throws ReflectionException
+     */
+    private function persistSync($model, $service, $settings, $data, ...$options): string
+    {
+        $primaryKey = $this->getModel()->getKeyName();
+        $childrenService = new $service();
+        $childrenModel = (new ReflectionClass($childrenService->getModel()::class))->getShortName();
+        $childrenData = $data->get(Str::snake($childrenModel));
+
+        $keeps = collect($childrenData)->map(function($d) use($childrenService) {
+            if(!array_key_exists($childrenService->getModel()?->getKeyName(), $d))
+                return 0;
+
+            return $d[$childrenService->getModel()?->getKeyName()];
+        });
+
+
+        $childrenService->getModel()
+            ->whereNotIn($childrenService->getModel()->getKeyName(), $keeps->toArray())
+            ->delete();
+
         return $childrenModel;
     }
 
