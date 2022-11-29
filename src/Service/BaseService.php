@@ -194,11 +194,9 @@ abstract class BaseService implements BaseServiceInterface
                 if ($persist === PersistEnum::AFTER_PERSIST) {
                     if(array_key_exists('options', $settings) && in_array(LarabaseOptions::SYNC, $settings['options'])){
                         $relationName = $this->persistSync($model, $service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]);
-                    } else {
-                        $childrenModelName = lcfirst($this->persistAfters($service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
-                        $relationName = Str::snake($settings['customRelationName'] ?? $childrenModelName);
                     }
-
+                    $childrenModelName = lcfirst($this->persistAfters($service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
+                    $relationName = Str::snake($settings['customRelationName'] ?? $childrenModelName);
                     $relationBag[] = $relationName;
                 }
             }
@@ -266,9 +264,10 @@ abstract class BaseService implements BaseServiceInterface
         });
 
 
-        $childrenService->getModel()
+          $model->$childrenModel()
             ->whereNotIn($childrenService->getModel()->getKeyName(), $keeps->toArray())
             ->delete();
+
 
         return $childrenModel;
     }
