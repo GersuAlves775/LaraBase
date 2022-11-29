@@ -192,7 +192,7 @@ abstract class BaseService implements BaseServiceInterface
                 $this->customValidations($settings, $repository);
                 $persist = $settings['persist'];
                 if ($persist === PersistEnum::AFTER_PERSIST) {
-                    if(in_array(LarabaseOptions::SYNC, $settings['options'])){
+                    if(array_key_exists('options', $settings) && in_array(LarabaseOptions::SYNC, $settings['options'])){
                         $relationName = $this->persistSync($model, $service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]);
                     } else {
                         $childrenModelName = lcfirst($this->persistAfters($service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
