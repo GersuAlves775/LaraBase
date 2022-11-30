@@ -188,8 +188,8 @@ abstract class BaseService implements BaseServiceInterface
             }
 
 
-            foreach ($this->parentStore as $repository => $settings) {
-                $this->customValidations($settings, $repository);
+            foreach ($this->parentStore as $service => $settings) {
+                $this->customValidations($settings, $service);
                 $persist = $settings['persist'];
                 if ($persist === PersistEnum::AFTER_PERSIST) {
                     if(array_key_exists('options', $settings) && in_array(LarabaseOptions::SYNC, $settings['options'])){
