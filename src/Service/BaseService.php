@@ -253,7 +253,7 @@ abstract class BaseService implements BaseServiceInterface
     {
         $primaryKey = $this->getModel()->getKeyName();
         $childrenService = new $service();
-        $childrenModel = (new ReflectionClass($childrenService->getModel()::class))->getShortName();
+        $childrenModel = Str::snake((new ReflectionClass($childrenService->getModel()::class))->getShortName());
         $childrenData = $data->get(Str::snake($childrenModel));
 
         $keeps = collect($childrenData)->map(function($d) use($childrenService) {
