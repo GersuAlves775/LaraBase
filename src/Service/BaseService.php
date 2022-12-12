@@ -264,10 +264,13 @@ abstract class BaseService implements BaseServiceInterface
         });
 
 
-          $model->$childrenModel()
+        $model->$childrenModel()
             ->whereNotIn($childrenService->getModel()->getKeyName(), $keeps->toArray())
+            ->get()
+            ->map
+            ->pivot
+            ->map
             ->delete();
-
 
         return $childrenModel;
     }
