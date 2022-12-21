@@ -156,6 +156,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         Storage::disk('local')->put($path . $filename, base64_decode($imagem));
 
-        return url('storage/' . $filename);
+        return url('storage/' . str_replace('public/', '', ltrim($path, '/')) . $filename);
     }
 }
