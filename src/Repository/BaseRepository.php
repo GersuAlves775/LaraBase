@@ -143,7 +143,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         $pos = strpos($imagem, ';');
         $type = explode(':', substr($imagem, 0, $pos))[1];
-        $type = str_replace("image/", "", $type);
+        $type = str_replace(["image/", "application/"], "", $type);
         $filename = Uuid::uuid4() . '.' . $type;
 
         $imagem = trim($imagem);
