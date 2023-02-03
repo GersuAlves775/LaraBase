@@ -8,18 +8,20 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Storage;
 use Ramsey\Uuid\Uuid;
-use Illuminate\Http\Request;
 
 abstract class BaseRepository implements BaseRepositoryInterface
 {
     private $model;
+    private $request;
     protected ?array $storeFile = [];
 
     public function __construct(Model $model)
     {
+        $this->request = request();
         $this->model = $model;
     }
 
@@ -48,20 +50,13 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model;
     }
 
-    public function update(array|Request $data)
+    public function update(Request $data)
     {
-        if (is_array($data)) {
-            $data = new Request($data);
-        }
-
         return $this->model = $this->store($data);
     }
 
-    public function store(array|Request $data)
+    public function store(Request $data)
     {
-        if (is_array($data)) {
-            $data = new Request($data);
-        }
         $data = $this->storeAndCastFiles($data);
         if ($data->get($this->getModel()->getKeyName())) {
             $this->model->updateOrCreate(
@@ -73,29 +68,19 @@ abstract class BaseRepository implements BaseRepositoryInterface
                 $this->getStoreContent($data)
             )->toArray());
         }
-
-        return $this->setModel($data);
+        return $this->setModel($this->getStoreContent($data));
 
     }
 
-    private function setModel(array|Request $data)
+    private function setModel($data)
     {
-        if (is_array($data)) {
-            $data = new Request($data);
-        }
-
-        if (!$data->exists($this->getModel()->getKeyName())) {
-            $myModel = new $this->model();
-            $myModel->fill($data->all());
-        } else {
-            $myModel = new $this->model();
-            $myModel = $myModel->find($data->get($this->getModel()->getKeyName()));
-        }
+        $myModel = new $this->model();
+        $myModel->fill($data);
 
         return $this->model = $myModel;
     }
 
-    private function getStoreContent(array|Request $data)
+    private function getStoreContent(Request $data)
     {
         $myFillable = array_merge($this->getModel()->getFillable(), [$this->getModel()->getKeyName()]);
         $itensToUpdate = array_intersect(
@@ -112,7 +97,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
             })->toArray();
     }
 
-    private function getPrimaryKeyWithValue(array|Request $data): array
+    private function getPrimaryKeyWithValue(Request $data): array
     {
         return [$this->getModel()->getKeyName() => $data->get($this->getModel()->getKeyName())];
     }
@@ -122,12 +107,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $this->getModel()->destroy($id);
     }
 
-    private function storeAndCastFiles(array|Request $data): Request
+    private function storeAndCastFiles(Request $data): Request
     {
-        if (is_array($data)) {
-            $data = new Request($data);
-        }
-
         if (count($this->storeFile)) {
             foreach ($this->storeFile as $column => $settings) {
                 if ($data[$column] && is_base64($data[$column]) && $settings['type'] === fileEnum::BASE64_IMAGE) {
@@ -143,7 +124,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         $pos = strpos($imagem, ';');
         $type = explode(':', substr($imagem, 0, $pos))[1];
-        $type = str_replace(["image/", "application/"], "", $type);
+        $type = str_replace("image/", "", $type);
         $filename = Uuid::uuid4() . '.' . $type;
 
         $imagem = trim($imagem);
@@ -156,6 +137,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         Storage::disk('local')->put($path . $filename, base64_decode($imagem));
 
-        return url('storage/' . str_replace('public/', '', ltrim($path, '/')) . $filename);
+        return url('storage/' . $filename);
     }
 }
