@@ -67,8 +67,12 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws Exception
      */
-    protected function store(Request $data)
+    protected function store(Request|array $data)
     {
+        if (is_array($data)) {
+            $data = new Request($data);
+        }
+
         if (count($this->recursiveStore)) {
             return $this->customStore($data);
         } else {
@@ -79,8 +83,14 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws Exception
      */
-    protected function update(Request $data)
+    protected function update(int $id, Request|array $data)
     {
+        if (is_array($data)) {
+            $data = new Request($data);
+        }
+
+        $this->mergeRequest($data, [$this->getModel()->getKeyName() => $id]);
+
         if (count($this->recursiveStore)) {
             return $this->customStore($data);
         } else {
