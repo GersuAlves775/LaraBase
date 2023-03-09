@@ -181,11 +181,9 @@ abstract class BaseService implements BaseServiceInterface
                     $childrenModelName = lcfirst($this->persistAfters($repository, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
                     $relationName = $settings['customRelationName'] ?? $childrenModelName;
                     $relationName = Str::snake($relationName);
-                    if ($relationName && !method_exists($model, $relationName)) {
-                        $modelClass = $this->repository->getModel()::class;
-                        throw new Exception("A relacao {$relationName} precisa existir em {$modelClass}");
+                    if ($relationName && method_exists($model, $relationName)) {
+                        $relationBag[] = $relationName;
                     }
-                    $relationBag[] = $relationName;
                 }
             }
 
