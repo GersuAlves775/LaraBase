@@ -267,10 +267,14 @@ abstract class BaseService implements BaseServiceInterface
         $model->$childrenModel()
             ->whereNotIn($childrenService->getModel()->getKeyName(), $keeps->toArray())
             ->get()
-            ->map
-            ->pivot
-            ->map
-            ->delete();
+            ->map(function ($map) {
+                if (property_exists($map, 'pivot')) {
+                    $map->pivot->map->delete();
+                } else {
+                    $map->delete();
+                }
+            });
+
 
         return $childrenModel;
     }
