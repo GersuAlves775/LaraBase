@@ -241,7 +241,7 @@ abstract class BaseService implements BaseServiceInterface
         if (empty($childrenData))
             return '';
 
-        if (array_filter($childrenData, fn($content) => is_array($content))) {
+        if ($this->isArrayOfArrays($childrenData)) {
             foreach ($childrenData as $index => $childrenDatum) {
                 $childrenDatum = array_merge($childrenDatum, [$options['key'] => $options['value']]);
                 $childrenRepository->store(new Request($childrenDatum));
@@ -268,6 +268,19 @@ abstract class BaseService implements BaseServiceInterface
 
         if (!is_null($this->recursiveCallBack) && !method_exists($this, $this->recursiveCallBack))
             throw new \Exception("O callback {$this->recursiveCallBack} foi informado mas o metodo nao existe.");
+    }
+
+    function isArrayOfArrays($arr): bool
+    {
+        if (is_array($arr)) {
+            foreach ($arr as $elem) {
+                if (!is_array($elem)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
 }
