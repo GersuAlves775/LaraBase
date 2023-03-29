@@ -85,7 +85,7 @@ class CrudGenerateCommand extends Command
     private function makeFiles()
     {
         $this->createService();
-        $this->createRequest();
+       // $this->createRequest();
         if ($this->makeRepo)
             $this->createRepository();
 
