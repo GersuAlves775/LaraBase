@@ -192,7 +192,7 @@ abstract class BaseService implements BaseServiceInterface
                 $this->customValidations($settings, $service);
                 $persist = $settings['persist'];
                 if ($persist === PersistEnum::AFTER_PERSIST) {
-                    if(array_key_exists('options', $settings) && in_array(LarabaseOptions::SYNC, $settings['options'])){
+                    if (array_key_exists('options', $settings) && in_array(LarabaseOptions::SYNC, $settings['options'])) {
                         $relationName = $this->persistSync($model, $service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]);
                     }
                     $childrenModelName = lcfirst($this->persistAfters($service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
@@ -256,8 +256,8 @@ abstract class BaseService implements BaseServiceInterface
         $childrenModel = Str::snake((new ReflectionClass($childrenService->getModel()::class))->getShortName());
         $childrenData = $data->get(Str::snake($childrenModel));
 
-        $keeps = collect($childrenData)->map(function($d) use($childrenService) {
-            if(!array_key_exists($childrenService->getModel()?->getKeyName(), $d))
+        $keeps = collect($childrenData)->map(function ($d) use ($childrenService) {
+            if (!array_key_exists($childrenService->getModel()?->getKeyName(), $d))
                 return 0;
 
             return $d[$childrenService->getModel()?->getKeyName()];
@@ -268,8 +268,11 @@ abstract class BaseService implements BaseServiceInterface
             ->whereNotIn($childrenService->getModel()->getKeyName(), $keeps->toArray())
             ->get()
             ->map(function ($map) {
-                if (property_exists($map, 'pivot')) {
-                    $map->pivot->map->delete();
+                if (property_exists($map, 'pivot') || $map->pivot) {
+                    if ($map->pivot->map)
+                        $map->pivot->map->delete();
+                    else
+                        $map->pivot->delete();
                 } else {
                     $map->delete();
                 }
