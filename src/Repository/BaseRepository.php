@@ -139,12 +139,12 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $data;
     }
 
-    public function saveFile($imagem, $path): string|UrlGenerator|Application
+    public function saveFile($imagem, $path, $filename = null): string|UrlGenerator|Application
     {
         $pos = strpos($imagem, ';');
         $type = explode(':', substr($imagem, 0, $pos))[1];
         $type = str_replace(["image/", "application/"], "", $type);
-        $filename = Uuid::uuid4() . '.' . $type;
+        $filename = ($filename ?? Uuid::uuid4()) . '.' . $type;
 
         $imagem = trim($imagem);
         $imagem = str_replace('data:image/png;base64,', '', $imagem);
