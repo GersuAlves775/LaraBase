@@ -2,20 +2,19 @@
 
 namespace gersonalves\laravelBase\Repository;
 
-use gersonalves\laravelBase\Repository\BaseRepositoryInterface;
 use gersonalves\laravelBase\Helpers\fileEnum;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Storage;
 use Ramsey\Uuid\Uuid;
-use Illuminate\Http\Request;
 
 abstract class BaseRepository implements BaseRepositoryInterface
 {
     private $model;
+
     protected ?array $storeFile = [];
 
     public function __construct(Model $model)
@@ -25,8 +24,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     public function get(int $id = null)
     {
-        if ($id)
+        if ($id) {
             return $this->model = $this->model->find($id);
+        }
 
         return $this->model = $this->model->get();
     }
@@ -38,8 +38,10 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     public function withRelations(): baseRepository
     {
-        if (method_exists(get_class($this->model), 'scopeWithRelations'))
+        if (method_exists(get_class($this->model), 'scopeWithRelations')) {
             $this->model = $this->model->withRelations();
+        }
+
         return $this;
     }
 
@@ -84,7 +86,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
             $data = new Request($data);
         }
 
-        if (!$data->exists($this->getModel()->getKeyName())) {
+        if (! $data->exists($this->getModel()->getKeyName())) {
             $myModel = new $this->model();
             $myModel->fill($data->all());
         } else {
@@ -101,10 +103,11 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $itensToUpdate = array_intersect(
             array_keys($data->all()), $myFillable
         );
+
         return Collection::make(
             array_flip(
                 Collection::make(array_keys($itensToUpdate))
-                    ->map(function ($item) use ($itensToUpdate, $data) {
+                    ->map(function ($item) use ($itensToUpdate) {
                         return $itensToUpdate[$item];
                     })->toArray()))
             ->map(function ($item, $key) use ($data) {
@@ -143,8 +146,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         $pos = strpos($imagem, ';');
         $type = explode(':', substr($imagem, 0, $pos))[1];
-        $type = str_replace(["image/", "application/"], "", $type);
-        $filename = ($filename ?? Uuid::uuid4()) . '.' . $type;
+        $type = str_replace(['image/', 'application/'], '', $type);
+        $filename = ($filename ?? Uuid::uuid4()).'.'.$type;
 
         $imagem = trim($imagem);
         $imagem = str_replace('data:image/png;base64,', '', $imagem);
@@ -154,8 +157,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $imagem = str_replace('data:application/pdf;base64,', '', $imagem);
         $imagem = str_replace(' ', '+', $imagem);
 
-        Storage::disk('local')->put($path . $filename, base64_decode($imagem));
+        Storage::disk('local')->put($path.$filename, base64_decode($imagem));
 
-        return url('storage/' . str_replace('public/', '', ltrim($path, '/')) . $filename);
+        return url('storage/'.str_replace('public/', '', ltrim($path, '/')).$filename);
     }
 }
