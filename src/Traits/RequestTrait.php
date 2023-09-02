@@ -2,18 +2,20 @@
 
 namespace gersonalves\laravelBase\Traits;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Arr;
 
 trait RequestTrait
 {
     public array $replaceOnUpdate = [];
+
     public array $excludeOnUpdate = [];
 
     public function create($request): array
     {
         $this->validate($request);
+
         return Arr::only($request, array_keys($this->validators));
     }
 
@@ -28,11 +30,12 @@ trait RequestTrait
 
         if ($replaces->isNotEmpty()) {
             $validators = $validators->map(
-                fn($rule, $key) => $replaces->get($key) ?? $rule
+                fn ($rule, $key) => $replaces->get($key) ?? $rule
             );
         }
 
         $this->validate($request, $validators->all());
+
         return Arr::only($request, array_keys($validators->all()));
     }
 
@@ -40,8 +43,9 @@ trait RequestTrait
     {
         $validation = Validator::make($data, $validators ?? $this->validators);
 
-        if ($validation->fails())
+        if ($validation->fails()) {
             throw new ValidationException($validation);
+        }
 
         return $validation;
     }
