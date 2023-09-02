@@ -13,6 +13,9 @@
         "php": "^8.1",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
+    "require-dev": {
+        "laravel/pint": "^1.12"
+    },
     "autoload": {
         "psr-4": {
             "gersonalves\\laravelBase\\": ["src/"]
