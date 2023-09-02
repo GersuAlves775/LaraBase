@@ -3,8 +3,8 @@
 namespace gersonalves\laravelBase\Traits;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 trait ControllerTrait
@@ -12,8 +12,9 @@ trait ControllerTrait
     public function index(): JsonResponse|Response
     {
         try {
-            if (request()->limit)
+            if (request()->limit) {
                 return response()->json($this->service->paginate());
+            }
 
             $response = $this->service->get();
             if (property_exists($this, 'resource') && method_exists($this?->resource, 'collection')) {
@@ -33,7 +34,7 @@ trait ControllerTrait
 
             return responseSuccess(200, 'success', $response);
         } catch (\Exception $e) {
-            return response()->json($this->getErrorString($e, "Registro não encontrado."), 404);
+            return response()->json($this->getErrorString($e, 'Registro não encontrado.'), 404);
         }
     }
 
@@ -52,18 +53,19 @@ trait ControllerTrait
     {
         try {
             $this->service->destroy($id);
+
             return response()->json([
                 'success' => 'true',
                 'message' => 'Registro deletado com sucesso',
             ]);
         } catch (\Exception $e) {
-            return response()->json($this->getErrorString($e, "Registro não encontrado."), 404);
+            return response()->json($this->getErrorString($e, 'Registro não encontrado.'), 404);
         }
     }
 
-    public function getErrorString($e, string $customMessage = "Server error"): string
+    public function getErrorString($e, string $customMessage = 'Server error'): string
     {
-        return env("APP_DEBUG") ? $e->getMessage() : $customMessage;
+        return env('APP_DEBUG') ? $e->getMessage() : $customMessage;
     }
 
     public function getTable(Request $request): JsonResponse|Response

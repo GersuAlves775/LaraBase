@@ -2,19 +2,18 @@
 
 namespace gersonalves\laravelBase;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Schema\Blueprint;
-
+use Illuminate\Support\ServiceProvider;
 
 class BaseLaravelServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        require_once(__DIR__ . '/Helpers/Utility.php');
+        require_once __DIR__.'/Helpers/Utility.php';
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                CrudGenerateCommand::class
+                CrudGenerateCommand::class,
             ]);
         }
 
@@ -35,5 +34,4 @@ class BaseLaravelServiceProvider extends ServiceProvider
     {
 
     }
-
 }
