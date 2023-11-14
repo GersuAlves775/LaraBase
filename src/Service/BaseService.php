@@ -283,4 +283,9 @@ abstract class BaseService implements BaseServiceInterface
         return false;
     }
 
+    public static function make(): static
+    {
+        return new static();
+    }
+
 }

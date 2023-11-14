@@ -139,4 +139,10 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         return url('storage/' . $filename);
     }
+
+    public static function make(): static
+    {
+        return new static();
+    }
+
 }
