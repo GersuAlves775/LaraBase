@@ -1,0 +1,28 @@
+name: 💅🏼 PHP Linting (Pint)
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - 'dependabot/npm_and_yarn/*'
+jobs:
+  Pint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+        with:
+          php-version: '8.1'
+      - uses: actions/checkout@v3
+
+      - name: ⬇️ Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: 🕵️ Launch Pint inspection
+        run: vendor/bin/pint
+
+      - name: 💾 Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 💅🏼 PHP Linting (Pint)
+          skip_fetch: true
