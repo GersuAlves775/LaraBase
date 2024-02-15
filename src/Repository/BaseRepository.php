@@ -22,7 +22,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $this->model = $model;
     }
 
-    public function get(int $id = null)
+    public function get(?int $id = null)
     {
         if ($id) {
             return $this->model = $this->model->find($id);

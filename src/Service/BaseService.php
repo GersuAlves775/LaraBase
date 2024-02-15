@@ -71,7 +71,7 @@ abstract class BaseService implements BaseServiceInterface
         return $this->repository->getModel();
     }
 
-    protected function get(int $id = null)
+    protected function get(?int $id = null)
     {
         if ($id) {
             return $this->repository->get($id);
