@@ -56,6 +56,11 @@ abstract class BaseService implements BaseServiceInterface
         return $this->repository->withRelations();
     }
 
+    public static function make(): static
+    {
+        return new static();
+    }
+
     public function __get(string $name)
     {
         return $this->repository->getModel()->$name;
@@ -66,7 +71,7 @@ abstract class BaseService implements BaseServiceInterface
         return $this->repository->getModel();
     }
 
-    protected function get(int $id = null)
+    protected function get(?int $id = null)
     {
         if ($id) {
             return $this->repository->get($id);
