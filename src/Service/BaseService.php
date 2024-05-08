@@ -336,7 +336,8 @@ abstract class BaseService implements BaseServiceInterface
     private function validate()
     {
         if (! $this->repositoryRequest || ! class_exists($this->repositoryRequest::class)) {
-            throw new Exception('O atributo repositoryRequest não existe ou não é uma classe.');
+            $className = (new ReflectionClass($this->repository))->getShortName();
+            throw new Exception("O atributo repositoryRequest não existe ou não é uma classe em {$className}");
         }
     }
 }
