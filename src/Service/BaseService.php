@@ -333,7 +333,11 @@ abstract class BaseService implements BaseServiceInterface
         }
     }
 
-    private function validate()
+    /**
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    private function validate(): void
     {
         if (! $this->repositoryRequest || ! class_exists($this->repositoryRequest::class)) {
             $className = (new ReflectionClass($this->repository))->getShortName();

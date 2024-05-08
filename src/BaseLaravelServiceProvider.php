@@ -9,7 +9,7 @@ class BaseLaravelServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        require_once __DIR__.'/Helpers/Utility.php';
+        require_once __DIR__ . '/Helpers/Utility.php';
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -28,6 +28,10 @@ class BaseLaravelServiceProvider extends ServiceProvider
                 ->references('id_user')
                 ->on('user');
         });
+
+        $this->publishes([
+            __DIR__ . './config/larabase.php' => config_path('larabase.php'),
+        ]);
     }
 
     public function register()
