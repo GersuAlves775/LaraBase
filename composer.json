@@ -1,6 +1,6 @@
 {
     "name": "gerson/laravel-base",
-    "description": "Pacote com facilitadores para utilização do laravel",
+    "description": "Pacote com facilitadores para utilização do laravel.",
     "type": "library",
     "license": "MIT",
     "authors": [
