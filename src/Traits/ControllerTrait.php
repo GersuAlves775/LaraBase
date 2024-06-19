@@ -27,10 +27,14 @@ trait ControllerTrait
         }
     }
 
-    public function show(int $id): JsonResponse|Response
+    public function show(int $id)
     {
         try {
             $response = $this->service->get($id);
+
+            if (property_exists($this, 'resource') && method_exists($this?->resource, 'resource')) {
+                return $this->resource::resource($response);
+            }
 
             return responseSuccess(200, 'success', $response);
         } catch (\Exception $e) {
