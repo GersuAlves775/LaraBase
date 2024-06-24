@@ -6,9 +6,34 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Yajra\DataTables\Facades\DataTables;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 trait ControllerTrait
 {
+
+    public function search(Request $request): \Illuminate\Support\Collection|Collection|LengthAwarePaginator|array
+    {
+        $allowedFilters = [AllowedFilter::trashed()];
+        $allowedFilters = array_merge($allowedFilters, $this->service->getModel()->getFillable());
+        $allowedFilters = array_merge($allowedFilters, $this->extraFields ?? []);
+
+        $query = QueryBuilder::for($this->service->getModel()->withRelations())
+            ->orderBy('created_at', 'desc')
+            ->allowedFilters(
+                $allowedFilters
+            )
+            ->allowedSorts(array_merge($this->service->getModel()->getFillable(), ['created_at']));
+
+        if ($request->has('paginate'))
+            return $query
+                ->paginate($request->get('per_page', 10));
+
+        return $query->get();
+    }
+
     public function index(): JsonResponse|Response
     {
         try {
@@ -18,7 +43,7 @@ trait ControllerTrait
 
             $response = $this->service->get();
             if (property_exists($this, 'resource') && method_exists($this?->resource, 'collection')) {
-                return $this->resource::collection($response);
+                return new $this->resource($response);
             }
 
             return responseSuccess(200, 'success', $response);
