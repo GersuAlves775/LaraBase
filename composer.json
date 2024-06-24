@@ -11,7 +11,8 @@
     ],
     "require": {
         "php": "^8.1",
-        "yajra/laravel-datatables-oracle": "^11.1.0"
+        "yajra/laravel-datatables-oracle": "^11.1.0",
+        "spatie/laravel-query-builder": "^6.0.1"
     },
     "require-dev": {
         "laravel/pint": "^1.12"
