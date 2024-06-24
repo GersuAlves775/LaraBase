@@ -25,7 +25,7 @@ trait ControllerTrait
             ->allowedFilters(
                 $allowedFilters
             )
-            ->allowedSorts(array_merge($this->service->getModel()->getFillable(), ['created_at']));
+            ->allowedSorts(array_merge($this->service->getModel()->getFillable(), ['created_at', $this->service->getModel()->getKeyName()]));
 
         if ($request->has('paginate'))
             return $query

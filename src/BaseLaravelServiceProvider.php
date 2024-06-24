@@ -4,6 +4,7 @@ namespace gersonalves\laravelBase;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\ServiceProvider;
+use gersonalves\laravelBase\Helpers\CustomResourceRegistrar;
 
 class BaseLaravelServiceProvider extends ServiceProvider
 {
@@ -17,7 +18,9 @@ class BaseLaravelServiceProvider extends ServiceProvider
             ]);
         }
 
-
+        $this->app->bind('Illuminate\Routing\ResourceRegistrar', function ($app) {
+            return new CustomResourceRegistrar($app['router']);
+        });
 
         Blueprint::macro('userRegister', function () {
             $this->unsignedBigInteger('created_by')->nullable();
