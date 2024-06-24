@@ -17,6 +17,8 @@ class BaseLaravelServiceProvider extends ServiceProvider
             ]);
         }
 
+
+
         Blueprint::macro('userRegister', function () {
             $this->unsignedBigInteger('created_by')->nullable();
             $this->foreign('created_by')
