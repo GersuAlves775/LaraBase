@@ -16,16 +16,26 @@ trait ControllerTrait
 
     public function search(Request $request): \Illuminate\Support\Collection|Collection|LengthAwarePaginator|array
     {
-        $allowedFilters = [AllowedFilter::trashed()];
-        $allowedFilters = array_merge($allowedFilters, $this->service->getModel()->getFillable());
-        $allowedFilters = array_merge($allowedFilters, $this->extraFields ?? []);
+
+        $allowedFilters = array_merge(
+            $this->service->getModel()->getFillable(),
+            $this->extraFilters ?? [],
+            [AllowedFilter::trashed()]
+        );
+
+
+        $sortables = array_merge(
+            ['created_at', $this->service->getModel()->getKeyName()],
+            $this->extraSortables ?? [],
+            $this->service->getModel()->getFillable()
+        );
 
         $query = QueryBuilder::for($this->service->getModel()->withRelations())
             ->orderBy('created_at', 'desc')
             ->allowedFilters(
                 $allowedFilters
             )
-            ->allowedSorts(array_merge($this->service->getModel()->getFillable(), ['created_at', $this->service->getModel()->getKeyName()]));
+            ->allowedSorts($sortables);
 
         if ($request->has('paginate'))
             return $query
