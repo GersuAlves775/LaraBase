@@ -44,7 +44,7 @@ trait ControllerTrait
         return $query->get();
     }
 
-    public function index(): JsonResponse|Response
+    public function index()
     {
         try {
             if (request()->limit) {
