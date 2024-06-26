@@ -17,6 +17,18 @@ trait ControllerTrait
     public function search(Request $request): \Illuminate\Support\Collection|Collection|LengthAwarePaginator|array
     {
 
+
+        $query = $this->makeQuery($this->service->getModel()->withRelations(), $request);
+
+        if ($request->has('paginate'))
+            return $query
+                ->paginate($request->get('per_page', 10));
+
+        return $query->get();
+    }
+
+    public function makeQuery($subject, Request $request)
+    {
         $allowedFilters = array_merge(
             $this->service->getModel()->getFillable(),
             $this->extraFilters ?? [],
@@ -30,18 +42,12 @@ trait ControllerTrait
             $this->service->getModel()->getFillable()
         );
 
-        $query = QueryBuilder::for($this->service->getModel()->withRelations())
+        return QueryBuilder::for($subject)
             ->orderBy('created_at', 'desc')
             ->allowedFilters(
                 $allowedFilters
             )
             ->allowedSorts($sortables);
-
-        if ($request->has('paginate'))
-            return $query
-                ->paginate($request->get('per_page', 10));
-
-        return $query->get();
     }
 
     public function index()
