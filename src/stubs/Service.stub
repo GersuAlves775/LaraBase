@@ -8,7 +8,7 @@ use App\Requests\{{SERVICE_NAME}}Request;
 class {{SERVICE_NAME}}Service extends BaseService
 {
     public function __construct(
-        $repository = new {{SERVICE_NAME}}Repository(),
+        public $repository = new {{SERVICE_NAME}}Repository(),
         public $repositoryRequest = new {{SERVICE_NAME}}Request()
     )
     {
