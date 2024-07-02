@@ -204,21 +204,21 @@ abstract class BaseService implements BaseServiceInterface
                         $relationName = $this->persistSync($model, $service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]);
                     }
                     $childrenModelName = lcfirst($this->persistAfters($service, $settings, $data, ...['key' => $modelKeyName, 'value' => $model->$modelKeyName]));
-                    $relationName = Str::snake($settings['customRelationName'] ?? $childrenModelName);
+                    $relationName = $settings['customRelationName'] ?? $childrenModelName;
                     $relationBag[] = $relationName;
                 }
             }
 
             DB::commit();
 
-            $relationBag = array_filter($relationBag, fn ($value) => ! is_null($value) && $value !== '');
+            $relationBag = array_filter($relationBag, fn($value) => !is_null($value) && $value !== '');
 
             $latest = $model->
             with($relationBag)
                 ->where($modelKeyName, $model->$modelKeyName)
                 ->latest()->firstOrFail();
 
-            if (! is_null($this->parentCallback) && method_exists($this, $this->parentCallback)) {
+            if (!is_null($this->parentCallback) && method_exists($this, $this->parentCallback)) {
                 $callbackResponse = call_user_func_array([$this, $this->parentCallback], [$latest]);
                 if ($callbackResponse) {
                     return $callbackResponse;
@@ -265,12 +265,16 @@ abstract class BaseService implements BaseServiceInterface
         $childrenData = $data->get(Str::snake($childrenModel));
 
         $keeps = collect($childrenData)->map(function ($d) use ($childrenService) {
-            if (! array_key_exists($childrenService->getModel()?->getKeyName(), $d)) {
+            if (!array_key_exists($childrenService->getModel()?->getKeyName(), $d)) {
                 return 0;
             }
 
             return $d[$childrenService->getModel()?->getKeyName()];
         });
+
+        if (array_key_exists('customRelationName', $settings['options'])) {
+            $childrenModel = $settings['options']['customRelationName'];
+        }
 
         $model->$childrenModel()
             ->whereNotIn($childrenService->getModel()->getKeyName(), $keeps->toArray())
@@ -303,7 +307,7 @@ abstract class BaseService implements BaseServiceInterface
             return '';
         }
 
-        if (array_filter($childrenData, fn ($content) => is_array($content))) {
+        if (array_filter($childrenData, fn($content) => is_array($content))) {
             foreach ($childrenData as $index => $childrenDatum) {
                 $childrenDatum = array_merge($childrenDatum, [$options['key'] => $options['value']]);
                 $childrenService->store(new Request($childrenDatum));
@@ -318,17 +322,17 @@ abstract class BaseService implements BaseServiceInterface
 
     public function customValidations($settings, $service)
     {
-        if (! isset($settings['persist'])) {
+        if (!isset($settings['persist'])) {
             throw new \Exception('O persist precisa ser definido');
         }
 
-        if (! is_subclass_of($service, BaseService::class, true)) {
+        if (!is_subclass_of($service, BaseService::class, true)) {
             $childrenService = new $service();
             $childrenModel = (new ReflectionClass($childrenService->getModel()::class))->getShortName();
-            throw new Exception($childrenModel.', deve extender de de gerson/laravel-base BaseService');
+            throw new Exception($childrenModel . ', deve extender de de gerson/laravel-base BaseService');
         }
 
-        if (! is_null($this->parentCallback) && ! method_exists($this, $this->parentCallback)) {
+        if (!is_null($this->parentCallback) && !method_exists($this, $this->parentCallback)) {
             throw new \Exception("O callback {$this->parentCallback} foi informado mas o metodo nao existe.");
         }
     }
@@ -339,7 +343,7 @@ abstract class BaseService implements BaseServiceInterface
      */
     private function validate(): void
     {
-        if (! $this->repositoryRequest || ! class_exists($this->repositoryRequest::class)) {
+        if (!$this->repositoryRequest || !class_exists($this->repositoryRequest::class)) {
             $className = (new ReflectionClass($this->repository))->getShortName();
             throw new Exception("O atributo repositoryRequest não existe ou não é uma classe em {$className}");
         }
