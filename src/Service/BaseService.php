@@ -74,7 +74,7 @@ abstract class BaseService implements BaseServiceInterface
         return $this->repository->getModel();
     }
 
-    protected function get(?int $id = null, Request|null $request = null)
+    protected function get(int|string|null $id = null, Request|null $request = null)
     {
         if ($id) {
             return $this->repository->get($id, $request);
@@ -113,7 +113,7 @@ abstract class BaseService implements BaseServiceInterface
     /**
      * @throws Exception
      */
-    protected function update(int $id, Request|array $data)
+    protected function update(int|string $id, Request|array $data)
     {
         if (is_array($data)) {
             $data = new Request($data);
@@ -138,7 +138,7 @@ abstract class BaseService implements BaseServiceInterface
         return $response;
     }
 
-    protected function destroy(int $id)
+    protected function destroy(int|string $id)
     {
         return $this->repository->destroy($id);
     }

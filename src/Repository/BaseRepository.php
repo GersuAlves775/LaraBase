@@ -44,7 +44,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model;
     }
 
-    public function get(?int $id = null, Request|null $request = null)
+    public function get(int|string|null $id = null, Request|null $request = null)
     {
         $model = clone($this->model);
 
@@ -171,7 +171,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return [$this->getModel()->getKeyName() => $data->get($this->getModel()->getKeyName())];
     }
 
-    public function destroy(int $id)
+    public function destroy(int|string $id)
     {
         $this->getModel()->destroy($id);
     }
