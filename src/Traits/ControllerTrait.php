@@ -97,7 +97,7 @@ trait ControllerTrait
         }
     }
 
-    public function show(int $id, Request $request)
+    public function show(int|string $id, Request $request)
     {
         try {
             $response = $this->service->get($id, $request);
@@ -112,7 +112,7 @@ trait ControllerTrait
         }
     }
 
-    public function update(int $id, Request $request): JsonResponse|Response
+    public function update(int|string $id, Request $request): JsonResponse|Response
     {
         return responseSuccess(200, 'success', $this->service->update($id, $request));
 
@@ -123,7 +123,7 @@ trait ControllerTrait
         return responseSuccess(200, 'success', $this->service->store($request));
     }
 
-    public function destroy(int $id): JsonResponse|Response
+    public function destroy(int|string $id): JsonResponse|Response
     {
         try {
             $this->service->destroy($id);
