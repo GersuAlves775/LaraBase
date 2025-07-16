@@ -5,6 +5,7 @@ namespace gersonalves\laravelBase\Traits;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Schema;
 use Yajra\DataTables\Facades\DataTables;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -65,18 +66,23 @@ trait ControllerTrait
             }
         }
 
+        $has_created_at = Schema::hasColumn($this->service->getModel()->getTable(), 'created_at');
         $sortables = array_merge(
-            ['created_at', $this->service->getModel()->getKeyName()],
+            $has_created_at ? ['created_at', $this->service->getModel()->getKeyName()] : [$this->service->getModel()->getKeyName()],
             $this->extraSortables ?? [],
             $this->service->getModel()->getFillable()
         );
 
-        return QueryBuilder::for($subject)
-            ->orderBy('created_at', 'desc')
+        $query = QueryBuilder::for($subject)
             ->allowedFilters(
                 $allowedFilters
             )
             ->allowedSorts($sortables);
+
+        if ($has_created_at)
+            $query->orderBy('created_at', 'desc');
+
+        return $query;
     }
 
     public function index()
