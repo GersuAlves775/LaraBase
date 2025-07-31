@@ -79,7 +79,7 @@ trait ControllerTrait
             )
             ->allowedSorts($sortables);
 
-        if ($has_created_at)
+        if ($has_created_at && !$query->getQuery()->orders)
             $query->orderBy('created_at', 'desc');
 
         return $query;
