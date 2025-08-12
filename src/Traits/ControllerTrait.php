@@ -16,9 +16,9 @@ use Illuminate\Database\Eloquent\Builder;
 trait ControllerTrait
 {
 
-    public function search(Request $request, Builder $builder): \Illuminate\Support\Collection|Collection|LengthAwarePaginator|array
+    public function search(Request $request, Builder $builder = null, $resource = null): \Illuminate\Support\Collection|Collection|LengthAwarePaginator|array
     {
-
+        $resource = $resource ?? $this->resource ?? null;
         $baseClass = $this->service->getModel()::class;
         $queryBase = $this->service->getModel()->query();
         if (method_exists($baseClass, 'scopeWithRelations')) {
@@ -28,9 +28,9 @@ trait ControllerTrait
 
         if ($request->has('paginate')) {
             $paginated = $query->paginate($request->get('per_page', 10));
-            if (property_exists($this, 'resource') && method_exists($this->resource, 'resource')) {
-                $paginated->getCollection()->transform(function ($item) {
-                    return $this->resource::resource($item);
+            if (property_exists($this, 'resource') && method_exists($resource, 'resource')) {
+                $paginated->getCollection()->transform(function ($item) use ($resource) {
+                    return $resource::resource($item);
                 });
             }
             return $paginated;
@@ -41,9 +41,9 @@ trait ControllerTrait
             $response = $query->get();
         }
 
-        if (property_exists($this, 'resource') && method_exists($this->resource, 'collection')) {
-            return $response->transform(function ($item) {
-                return $this->resource::resource($item);
+        if (property_exists($this, 'resource') && method_exists($resource, 'collection')) {
+            return $response->transform(function ($item) use ($resource) {
+                return $resource::resource($item);
             });
         }
 
