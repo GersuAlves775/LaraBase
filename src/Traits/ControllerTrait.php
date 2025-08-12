@@ -86,16 +86,17 @@ trait ControllerTrait
         return $query;
     }
 
-    public function index()
+    public function index($resource = null)
     {
         try {
+            $resource = $resource ?? $this->resource ?? null;
             if (request()->limit) {
                 return response()->json($this->service->paginate());
             }
 
             $response = $this->service->get(null, request());
-            if (property_exists($this, 'resource') && method_exists($this?->resource, 'collection')) {
-                return new $this->resource($response);
+            if (property_exists($this, 'resource') && method_exists($resource, 'collection')) {
+                return new $resource($response);
             }
 
             return responseSuccess(200, 'success', $response);
