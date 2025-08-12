@@ -11,11 +11,12 @@ use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 trait ControllerTrait
 {
 
-    public function search(Request $request): \Illuminate\Support\Collection|Collection|LengthAwarePaginator|array
+    public function search(Request $request, Builder $builder): \Illuminate\Support\Collection|Collection|LengthAwarePaginator|array
     {
 
         $baseClass = $this->service->getModel()::class;
@@ -23,7 +24,7 @@ trait ControllerTrait
         if (method_exists($baseClass, 'scopeWithRelations')) {
             $queryBase = $queryBase->withRelations();
         }
-        $query = $this->makeQuery($queryBase, $request);
+        $query = $builder ?? $this->makeQuery($queryBase, $request);
 
         if ($request->has('paginate')) {
             $paginated = $query->paginate($request->get('per_page', 10));
