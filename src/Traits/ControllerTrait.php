@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 trait ControllerTrait
 {
 
-    public function search(Request $request, Builder $builder = null, $resource = null): \Illuminate\Support\Collection|Collection|LengthAwarePaginator|array
+    public function search(Request $request, ?Builder $builder = null, $resource = null): \Illuminate\Support\Collection|Collection|LengthAwarePaginator|array
     {
         $resource = $resource ?? $this->resource ?? null;
         $baseClass = $this->service->getModel()::class;
