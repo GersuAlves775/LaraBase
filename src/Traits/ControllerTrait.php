@@ -24,7 +24,7 @@ trait ControllerTrait
         if (method_exists($baseClass, 'scopeWithRelations')) {
             $queryBase = $queryBase->withRelations();
         }
-        $query = $builder ?? $this->makeQuery($queryBase, $request);
+        $query = $this->makeQuery($builder ?? $queryBase, $request);
 
         if ($request->has('paginate')) {
             $paginated = $query->paginate($request->get('per_page', 10));
