@@ -144,21 +144,25 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     public function saveFile($imagem, $path, $filename = null): string|UrlGenerator|Application
     {
-        $pos = strpos($imagem, ';');
-        $type = explode(':', substr($imagem, 0, $pos))[1];
-        $type = str_replace(['image/', 'application/'], '', $type);
+        if (! is_string($imagem) || ! preg_match('#^data:([^;]+);base64,(.*)$#s', trim($imagem), $matches)) {
+            throw new \InvalidArgumentException('Arquivo base64 inválido.');
+        }
+
+        $mime = strtolower($matches[1]);
+        $type = str_replace(['image/', 'application/'], '', $mime);
+        $type = $type === 'jpeg' ? 'jpg' : $type;
         $filename = ($filename ?? Uuid::uuid4()).'.'.$type;
 
-        $imagem = trim($imagem);
-        $imagem = str_replace('data:image/png;base64,', '', $imagem);
-        $imagem = str_replace('data:image/jpg;base64,', '', $imagem);
-        $imagem = str_replace('data:image/jpeg;base64,', '', $imagem);
-        $imagem = str_replace('data:image/gif;base64,', '', $imagem);
-        $imagem = str_replace('data:application/pdf;base64,', '', $imagem);
-        $imagem = str_replace(' ', '+', $imagem);
+        $binary = base64_decode(str_replace(' ', '+', $matches[2]), true);
+        if ($binary === false || $binary === '') {
+            throw new \InvalidArgumentException('Falha ao decodificar o arquivo base64.');
+        }
 
-        Storage::disk('local')->put($path.$filename, base64_decode($imagem));
+        $relative = trim(str_replace('\\', '/', (string) $path), '/').'/'.$filename;
+        if (! Storage::disk('local')->put($relative, $binary)) {
+            throw new \RuntimeException('Não foi possível gravar o arquivo no storage.');
+        }
 
-        return url('storage/'.str_replace('public/', '', ltrim($path, '/')).$filename);
+        return url('storage/'.ltrim(preg_replace('#^public/#', '', $relative) ?? $filename, '/'));
     }
 }
