@@ -58,7 +58,7 @@ abstract class BaseService implements BaseServiceInterface
 
     public static function make(): static
     {
-        return new static();
+        return new static;
     }
 
     public function __get(string $name)
@@ -239,7 +239,7 @@ abstract class BaseService implements BaseServiceInterface
      */
     private function persistBefores($service, $settings, $data): string
     {
-        $childrenService = new $service();
+        $childrenService = new $service;
         $childrenModel = (new ReflectionClass($childrenService->getModel()::class))->getShortName();
         $childrenData = $data->get(Str::snake($childrenModel));
 
@@ -260,7 +260,7 @@ abstract class BaseService implements BaseServiceInterface
     private function persistSync($model, $service, $settings, $data, ...$options): string
     {
         $primaryKey = $this->getModel()->getKeyName();
-        $childrenService = new $service();
+        $childrenService = new $service;
         $childrenModel = Str::snake((new ReflectionClass($childrenService->getModel()::class))->getShortName());
         $childrenData = $data->get(Str::snake($childrenModel));
 
@@ -295,7 +295,7 @@ abstract class BaseService implements BaseServiceInterface
      */
     private function persistAfters($service, $settings, $data, ...$options): string
     {
-        $childrenService = new $service();
+        $childrenService = new $service;
         $childrenModel = (new ReflectionClass($childrenService->getModel()::class))->getShortName();
         $childrenData = $data->get(Str::snake($childrenModel));
 
@@ -323,7 +323,7 @@ abstract class BaseService implements BaseServiceInterface
         }
 
         if (! is_subclass_of($service, BaseService::class, true)) {
-            $childrenService = new $service();
+            $childrenService = new $service;
             $childrenModel = (new ReflectionClass($childrenService->getModel()::class))->getShortName();
             throw new Exception($childrenModel.', deve extender de de gerson/laravel-base BaseService');
         }

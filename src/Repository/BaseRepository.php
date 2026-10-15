@@ -87,10 +87,10 @@ abstract class BaseRepository implements BaseRepositoryInterface
         }
 
         if (! $data->exists($this->getModel()->getKeyName())) {
-            $myModel = new $this->model();
+            $myModel = new $this->model;
             $myModel->fill($data->all());
         } else {
-            $myModel = new $this->model();
+            $myModel = new $this->model;
             $myModel = $myModel->find($data->get($this->getModel()->getKeyName()));
         }
 

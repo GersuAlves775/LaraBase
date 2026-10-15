@@ -2,6 +2,4 @@
 
 namespace gersonalves\laravelBase\Service;
 
-interface BaseServiceInterface
-{
-}
+interface BaseServiceInterface {}

@@ -30,8 +30,5 @@ class BaseLaravelServiceProvider extends ServiceProvider
         });
     }
 
-    public function register()
-    {
-
-    }
+    public function register() {}
 }
